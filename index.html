@@ -1,0 +1,1565 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa de embarque de contêineres</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+:root{color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#e9eef3;--cd:#fff;--ink:#132033;--mut:#56667a;--ln:#c5d0dc;--ac:#0a6a8f;--on:#fff;--bad:#b3261e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0d1520;--cd:#162130;--ink:#e8eef5;--mut:#9db0c4;--ln:#2a3a4e;--ac:#55b9e0;--on:#06202c;--bad:#ff8f86}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0d1520;--cd:#162130;--ink:#e8eef5;--mut:#9db0c4;--ln:#2a3a4e;--ac:#55b9e0;--on:#06202c;--bad:#ff8f86}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.35 "Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif}
+
+main{max-width:1240px;margin:0 auto;padding:12px 12px 40px}
+body.so main{padding-bottom:370px}
+h1{font-size:23px;margin:4px 0 10px;font-weight:700}
+button,input{font:inherit}
+button{min-height:42px;min-width:44px;padding:0 12px;border:1px solid var(--ln);border-radius:8px;background:var(--cd);color:var(--ink);cursor:pointer;touch-action:manipulation;transition:all .15s}
+button:disabled{opacity:.4;cursor:not-allowed}
+button[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:var(--on)}
+button[aria-pressed=true] small{color:inherit}
+button.pri{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700;margin-left:auto}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+
+details{background:var(--cd);border:1px solid var(--ln);border-radius:10px;padding:10px 12px}
+summary{font-weight:700;cursor:pointer}
+.hf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+.h2{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:10px}
+label{display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--mut)}
+input{min-height:38px;padding:5px 8px;border:1px solid var(--ln);border-radius:6px;background:var(--bg);color:var(--ink);font-size:16px;width:100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:end;margin:12px 0 6px}
+.g{display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--mut)}
+.g div{display:flex;gap:4px}
+#msg{min-height:40px;font-size:14px;color:var(--mut);margin:0 0 6px}
+#msg.bad{color:var(--bad);font-weight:600}
+
+.sheet{overflow:auto;background:#fff;border:1px solid var(--ln);border-radius:10px;max-width:100%}
+.sheet svg{display:block;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.lg{font-size:13px;color:var(--mut);margin:6px 0 14px}
+small{font-size:13px;color:var(--mut)}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;text-align:left;padding:8px 10px;width:100%;min-height:56px}
+.row span{display:grid;min-width:0}
+.row span b,.row small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.no{min-width:34px;height:30px;padding:0 4px;display:grid;place-items:center;border:2px solid var(--ink);border-radius:4px;font-size:18px}
+.no.up{background:var(--ink);color:var(--bg)}
+.empty{grid-column:1/-1;color:var(--mut);padding:14px;border:1px dashed var(--ln);border-radius:10px;margin:0}
+
+.dlg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:grid;place-items:center;padding:12px}
+.dlg[hidden]{display:none}
+.dlg-c{background:var(--cd);border:1px solid var(--ln);border-radius:12px;width:100%;max-width:560px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.dlg-c h2{margin:0 0 10px;font-size:20px}
+
+.sh{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;max-width:760px;margin:0 auto;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--cd);border:1px solid var(--ln);border-bottom:0;border-radius:14px 14px 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.25)}
+.sh[hidden],#pl[hidden]{display:none}
+.sh .ch,.sh .w2,.sh .ca,#pl{grid-column:1/-1}
+.ch{display:flex;gap:8px;align-items:center;font-size:14px}
+.ca{display:flex;gap:6px}.ca button{flex:1;padding:0 6px}
+.mvr button[data-mv]{flex:0 0 40px;padding:0}.mvr button[data-a^=stp]{font-size:12px;padding:0 2px;white-space:nowrap}
+#pl{display:flex;gap:6px;align-items:center;overflow-x:auto}
+#pl button{flex:0 0 auto;min-height:34px;padding:0 10px}
+select{font:inherit;min-height:38px;padding:5px 4px;border:1px solid var(--ln);border-radius:6px;background:var(--bg);color:var(--ink);font-size:16px}
+.hf select{width:100%}
+.cn{display:flex;gap:4px}.cn input{flex:1;min-width:0}.cn #pn{flex:0 0 5.4em;text-transform:uppercase}
+.lf{display:flex;gap:4px}.lf select,.lf input{flex:1;min-width:0;width:auto}
+.lmr{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}.lmr b{min-width:96px;font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--ln);border-radius:999px;padding:2px 4px 2px 10px;font-size:13px;background:var(--bg)}
+.chip button{min-height:26px;min-width:26px;padding:0;border-radius:50%;font-size:12px}
+.lgb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid var(--ln);border-radius:8px;padding:6px 8px;background:var(--bg);font-size:13px}
+.lgb img{height:30px;max-width:90px;object-fit:contain;background:#fff;border:1px solid var(--ln);border-radius:4px}
+.lgs{display:flex;align-items:center;gap:6px;color:var(--mut);min-width:0}.lgs span{overflow-wrap:anywhere}
+#shi{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.tabs{display:flex;gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--bg);padding:6px 0 8px}
+.tabs button{flex:1}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:16;background:var(--bg)}
+.tp[hidden]{display:none}
+#wr{touch-action:pan-x pan-y}
+.ed{display:flex;align-items:flex-start;width:max-content}
+.ed svg{display:block;flex:none}
+#rv{position:sticky;left:0;z-index:3}
+.ppbar{position:sticky;left:0;z-index:4;display:flex;justify-content:space-between;gap:8px;padding:4px 6px;pointer-events:none}
+.pb{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid #56667a;background:#fff;color:#56667a}
+.pb.bow{background:#0a6a8f;border-color:#0a6a8f;color:#fff}
+.flt{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:8px}
+.flt input{width:100%}
+.cfr,.cfd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+.cfr b,.cfd span{min-width:70px}
+.cfd input{width:84px;text-align:center}
+.cfs{border-top:1px solid var(--ln);margin-top:12px;padding-top:8px}
+.dlg-c{max-height:92vh;overflow:auto}
+.g div button+button{margin-left:0}
+</style>
+</head>
+<body>
+
+<main>
+<h1>Mapa de embarque de contêineres</h1>
+<nav class="tabs" role="tablist" aria-label="Guias">
+<button type="button" role="tab" id="tb-cab" data-tab="cab">Cabeçalho</button>
+<button type="button" role="tab" id="tb-car" data-tab="car">Carregamento</button>
+<button type="button" role="tab" id="tb-lis" data-tab="lis">Lista</button>
+</nav>
+
+<section class="tp" id="tab-cab" hidden>
+<div class="hf">
+<label>Empresa<span data-lf="cia"></span></label>
+<label>Filial<span data-lf="fil"></span></label>
+<label>Data de início<input type="date" data-h="dt1"></label>
+<label>Hora de início<input type="time" data-h="ini"></label>
+<label>Vistoriador<span data-lf="vis"></span></label>
+<label>Balsa<span data-lf="bal"></span></label>
+<label>Empurrador<span data-lf="emp"></span></label>
+<label>Conferente<span data-lf="conf"></span></label>
+<label>Data de término<input type="date" data-h="dt2"></label>
+<label>Hora de término<input type="time" data-h="ter"></label>
+<label>Empilhador<span data-lf="empi"></span></label>
+</div>
+<div class="h2">
+<div class="lgb"><b>Logo esquerda</b><span class="lgs"><img id="lgi-l" alt="Logo esquerda" hidden><span id="lgn-l">nenhum arquivo</span></span><button type="button" id="lgb-l">Escolher…</button><button type="button" id="lgx-l" hidden>Remover</button><input type="file" accept="image/*" id="lg-l" hidden></div>
+<div class="lgb"><b>Logo direita</b><span class="lgs"><img id="lgi-r" alt="Logo direita" hidden><span id="lgn-r">nenhum arquivo</span></span><button type="button" id="lgb-r">Escolher…</button><button type="button" id="lgx-r" hidden>Remover</button><input type="file" accept="image/*" id="lg-r" hidden></div>
+</div>
+<div class="h2"><button type="button" id="hclr">Limpar cabeçalho</button></div>
+</section>
+
+<section class="tp" id="tab-car" hidden>
+<div class="bar">
+<div class="g">Camadas<div><button id="tg-vl" aria-label="Alternar camada visível">Todas</button></div></div>
+<div class="g">Proa<div><button id="tg-proa" aria-label="Alternar o lado da proa">Direita</button></div></div>
+<div class="g">Tamanho<div><button id="tg-sz" aria-label="Alternar tamanho do contêiner (20 ou 40 pés)">40'</button></div></div>
+<div class="g">Girar<div><button id="tb-rot" aria-label="Girar contêiner" title="Gira o contêiner selecionado (90° ou 180°)">↻</button></div></div>
+<div class="g">Cadeado geral<div><button id="tb-lck" style="font-weight:bold" title="Trava ou libera todos os contêineres">🔒 Trancado</button></div></div>
+<div class="g">Desfazer<div style="gap:4px"><button id="btn-undo" aria-label="Desfazer" disabled style="padding:0 8px">↩</button><button id="btn-redo" aria-label="Refazer" disabled style="padding:0 8px">↪</button></div></div>
+<div class="g">Mapa<div><button id="btn-cfg">Configurar</button><button id="btn-clr">Apagar tudo</button></div></div>
+<button id="pdf" class="pri">Gerar PDF</button>
+</div>
+
+<p id="msg" aria-live="polite"></p>
+<div class="sheet" id="wr">
+<div class="ppbar" id="pp"></div>
+<div class="ed"><svg id="rv" role="img" aria-label="Régua vertical"></svg><svg id="cr" role="img" aria-label="Croqui de embarque"></svg></div>
+</div>
+<p class="lg">Legenda: a faixa estreita na ponta do contêiner é a porta, e a seta da etiqueta numerada aponta para ela; em pilhas, os números seguem em sequência a partir da porta (do topo para a base); com portas opostas na mesma pilha, formam duas filas lado a lado. Tons: branco = base, cinza = níveis intermediários, preto = último nível; ao ver uma camada, os níveis inferiores ficam esmaecidos. Malha: de ponto grande a ponto grande = 1 módulo (20' = 5 x 2 módulos, 40' = 10 x 2); ponto pequeno = meio módulo. Coordenada: ponto da malha onde a ponta da seta toca a porta (letra da linha + número da coluna, a partir da popa).</p>
+</section>
+
+<section class="tp" id="tab-lis" hidden>
+<div class="flt">
+<input id="f-q" type="search" placeholder="Buscar nº, cliente, CNT ou lacres" autocomplete="off" aria-label="Buscar">
+<select id="f-cli" aria-label="Filtrar por cliente"></select>
+<select id="f-niv" aria-label="Filtrar por nível"></select>
+<select id="f-tam" aria-label="Filtrar por tamanho"><option value="">Tamanho: todos</option><option value="20">20'</option><option value="40">40'</option></select>
+<button type="button" id="f-pend" aria-pressed="false">Pendentes</button>
+<button type="button" id="f-clr">Limpar filtros</button>
+</div>
+<p id="f-cnt" class="lg"></p>
+<div class="list" id="ls"></div>
+</section>
+</main>
+
+<div class="sh" id="sh" hidden role="dialog" aria-label="Dados do contêiner">
+<div class="ch"><b class="no" id="shn"></b><span id="shi"></span><button data-a="undo" id="shu" aria-label="Desfazer" disabled style="margin-left:auto;padding:0 8px">↩</button><button data-a="redo" id="shr" aria-label="Refazer" disabled style="padding:0 8px">↪</button><button data-a="x" aria-label="Fechar">✕</button></div>
+<div id="pl" hidden></div>
+<label class="w2">Cliente<span class="cn"><select id="cls" aria-label="Cliente"></select><input id="cln" maxlength="60" autocomplete="off" autocapitalize="characters" placeholder="Novo cliente" aria-label="Novo cliente" hidden></span></label>
+<label>CNT<span class="cn"><select id="px" aria-label="Prefixo do contêiner"></select><input id="pn" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ABCD" aria-label="Novo prefixo" hidden><input id="nm" inputmode="numeric" autocomplete="off" placeholder="000000-0" enterkeyhint="next" aria-label="Número do contêiner"></span></label>
+<label>Lacres<input data-k="lc" autocomplete="off" enterkeyhint="done"></label>
+<div class="ca mvr"><button data-mv="W" aria-label="Mover para a esquerda">←</button><button data-mv="N" aria-label="Mover para cima">↑</button><button data-mv="S" aria-label="Mover para baixo">↓</button><button data-mv="E" aria-label="Mover para a direita">→</button><button data-a="stpi" id="stpi" aria-label="Passo inteiro (1, 2, 5, 10)"></button><button data-a="stpf" id="stpf" aria-label="Passo fracionado (1/2, 1/4, 1/8, 1/16)"></button></div>
+<div class="ca"><button id="lck" data-a="lock" style="flex:1.5;font-weight:bold">🔒 Trancado</button><button data-a="flip">Inverter porta</button><button data-a="rot">Girar</button></div>
+<div class="ca"><button data-a="stack">Empilhar outro</button><button data-a="del">Excluir</button></div>
+</div>
+
+<div class="dlg" id="cfg-dlg" hidden>
+  <div class="dlg-c">
+    <h2>Configurar</h2>
+    <div class="cfr"><b>Números</b><button type="button" id="cf-num" aria-pressed="true">Visíveis</button></div>
+    <div class="cfr"><b>Réguas</b><button type="button" id="cf-rul" aria-pressed="true">Ligadas</button></div>
+    <div class="cfs"><b>Tamanho da malha</b>
+      <div class="cfd"><span>Largura</span><button type="button" id="gw-m" aria-label="Diminuir largura">−</button><input id="gw" inputmode="decimal" aria-label="Largura da malha"><button type="button" id="gw-p" aria-label="Aumentar largura">+</button><button type="button" id="gw-b">Borda: direita</button></div>
+      <div class="cfd"><span>Altura</span><button type="button" id="gh-m" aria-label="Diminuir altura">−</button><input id="gh" inputmode="decimal" aria-label="Altura da malha"><button type="button" id="gh-p" aria-label="Aumentar altura">+</button><button type="button" id="gh-b">Borda: inferior</button></div>
+      <small id="gfolga"></small>
+      <div class="cfd"><button type="button" id="g-reset">Restaurar 60 x 16</button></div>
+    </div>
+    <div class="cfs"><b>Listas salvas</b><div id="lmb"></div></div>
+    <div style="margin-top:14px"><button type="button" id="cfg-x" class="pri" style="width:100%;margin-left:0">Fechar</button></div>
+  </div>
+</div>
+<div class="dlg" id="pdf-dlg" hidden>
+  <div class="dlg-c">
+    <h2>Opções de Impressão (PDF)</h2>
+    <p style="margin-bottom:12px;color:var(--mut);font-size:14px;line-height:1.4">
+      Selecione os croquis que farão parte do documento. Para croquis com a opção <b>"Numeração"</b> marcada, uma lista detalhada de contêineres será impressa nas páginas seguintes. Use as setas para ordenar.
+    </p>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+      <span style="font-weight:600; font-size:14px">Croquis Disponíveis:</span>
+      <button type="button" onclick="toggleAllOpts()" style="min-height:30px; padding:0 8px; font-size:13px">Alternar Todas</button>
+    </div>
+    <div id="dlg-opts" style="max-height:40vh;overflow-y:auto;border:1px solid var(--ln);padding:10px;border-radius:8px;margin-bottom:15px;background:#f8fafc"></div>
+    <div style="display:flex;gap:10px">
+      <button id="btn-pdf-cancel" style="flex:1">Cancelar</button>
+      <button id="btn-pdf-gen" class="pri" style="flex:1">Gerar PDF</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+let COLS=60,ROWS=16;
+const MAXZ=5,LP=450,STEPI=[1,2,5,10],STEPF=[.5,.25,.125,.0625],STEPFL=['1/2','1/4','1/8','1/16'],A={E:'→',W:'←',N:'↑',S:'↓'},U={E:[1,0],W:[-1,0],S:[0,1],N:[0,-1]},FL={E:'W',W:'E',N:'S',S:'N'},RT={E:'S',S:'W',W:'N',N:'E'};
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let S={cs:[],h:{},logo:'',lr:1,sz:40,d:'E',sel:0,zoom:20,step:.5,viewLevel:0,num:1},G=null,LKD=1;
+try{Object.assign(S,JSON.parse(localStorage.getItem('mec1')||'{}')); S.num=S.num!==undefined?S.num:1;}catch(e){}
+S.sel=0;
+
+if(!Array.isArray(S.pfx))S.pfx=[];
+const PXR=/^\s*([A-Za-z]{3,4})(?=\s|\d|$)/;
+const cntP=s=>{const m=PXR.exec(s||'');return m?m[1].toUpperCase():''};
+const cntN=s=>String(s||'').replace(PXR,'').trim();
+const cntS=(p,n)=>((p||'')+' '+(n||'')).trim();
+S.cs.forEach(c=>{const p=cntP(c.cnt);if(p&&!S.pfx.includes(p))S.pfx.push(p)});
+if(!S.pfx.length)S.pfx=['PCPU'];
+if(!S.px||!S.pfx.includes(S.px))S.px=S.pfx[0];
+if(S.rul===undefined)S.rul=1;
+if(S.stM!=='f')S.stM='i';
+if(!(S.stI>=0&&S.stI<4))S.stI=0;
+if(!(S.stF>=0&&S.stF<4))S.stF=0;
+let UIDN=0;S.cs.forEach(c=>{if(c.uid>UIDN)UIDN=c.uid});S.cs.forEach(c=>{if(!c.uid)c.uid=++UIDN});
+if(!S.h||typeof S.h!=='object')S.h={};
+const LFN={cia:'Empresa',fil:'Filial',vis:'Vistoriador',bal:'Balsa',emp:'Empurrador',conf:'Conferente',empi:'Empilhador'},LFK=Object.keys(LFN);
+if(!S.ls||typeof S.ls!=='object')S.ls={};
+LFK.forEach(k=>{if(!Array.isArray(S.ls[k]))S.ls[k]=[]});
+if(!S.ls.cia.length)S.ls.cia=['J.F. DE OLIVEIRA NAVEGAÇÃO LTDA'];
+if(!S.ls.fil.length)S.ls.fil=['PORTO VELHO - RO'];
+LFK.forEach(k=>{const v=S.h[k];if(typeof v==='string'&&v.trim()){const u=v.trim().toUpperCase();S.h[k]=u;if(!S.ls[k].includes(u))S.ls[k].push(u)}});
+if(S.h.cia===undefined)S.h.cia=S.ls.cia[0];
+if(S.h.fil===undefined)S.h.fil=S.ls.fil[0];
+const EXU=new Set();   // liberados pelo cadeado do contêiner (valem só enquanto o contêiner está selecionado)
+const isLocked=c=>!!LKD&&!(c&&EXU.has(c.uid));
+let shownUid=0;
+const stepVal=()=>S.stM==='f'?STEPF[S.stF]:STEPI[S.stI];
+const proaR=()=>(S.h.proa||'')!=='E';
+const tipPt=c=>{const t=.41;return c.d==='E'?[c.x+c.w-t,c.y+c.h/2]:c.d==='W'?[c.x+t,c.y+c.h/2]:c.d==='S'?[c.x+c.w/2,c.y+c.h-t]:[c.x+c.w/2,c.y+t]};
+const pinRow=py=>String.fromCharCode(65+Math.max(0,Math.min(Math.floor(ROWS),Math.floor(py+.5))));
+const pinCol=px=>{const i=Math.max(0,Math.min(Math.floor(COLS),Math.floor(px+.5)));return proaR()?i+1:Math.floor(COLS)-i+1};
+const coord=c=>{const p=tipPt(c);return pinRow(p[1])+pinCol(p[0])};
+const lvName=z=>z===1?'B':'N'+(z-1);
+const MG=()=>({l:.8,t:S.rul?2.2:.6,r:.8,b:.6});
+const RVW=2;
+if(S.h.proa==='N')S.h.proa='';
+if(S.gbW!=='L')S.gbW='R';
+if(S.gbH!=='T')S.gbH='B';
+if(S.cols>0)COLS=S.cols;
+if(S.rows>0)ROWS=S.rows;
+{let mx=0,my=0;S.cs.forEach(c=>{mx=Math.max(mx,c.x+c.w);my=Math.max(my,c.y+c.h)});COLS=Math.max(COLS,Math.ceil(mx*2)/2);ROWS=Math.max(ROWS,Math.ceil(my*2)/2)}
+S.cols=COLS;S.rows=ROWS;
+if(!Array.isArray(S.ls.cli))S.ls.cli=[];
+S.cs.forEach(c=>{if(typeof c.cl==='string'&&c.cl.trim()){c.cl=c.cl.trim().toUpperCase();if(!S.ls.cli.includes(c.cl))S.ls.cli.push(c.cl)}else c.cl=''});
+if(S.lastCli&&!S.ls.cli.includes(S.lastCli))S.lastCli='';
+let undoStack=[], redoStack=[];
+const syncUndo = () => {
+  const nu = !undoStack.length, nr = !redoStack.length;
+  ['#btn-undo', '#shu'].forEach(q => { const b = $(q); if (b) b.disabled = nu; });
+  ['#btn-redo', '#shr'].forEach(q => { const b = $(q); if (b) b.disabled = nr; });
+};
+function flushEdit(){
+  const a = document.activeElement;
+  if (a && a.dataset && a.dataset.st) {
+    const old = a.dataset.st;
+    if (old !== JSON.stringify(S.cs)) { undoStack.push(old); if (undoStack.length > 50) undoStack.shift(); redoStack = []; }
+    a.dataset.st = JSON.stringify(S.cs);
+  }
+}
+const commit = () => {
+  flushEdit();
+  undoStack.push(JSON.stringify(S.cs));
+  if(undoStack.length > 50) undoStack.shift();
+  redoStack=[];
+  syncUndo();
+};
+const restoreSel = (uid, was) => {
+  const c = uid ? S.cs.find(o => o.uid === uid) : null;
+  if (c && was) { S.sel = c.id; updLck(); fillSheet(c, true); draw(); }
+  else { S.sel = 0; if (!sh.hidden) closeSheet(); }
+};
+const doUndo = () => {
+  flushEdit();
+  if(!undoStack.length) return;
+  const c0 = sel(), uid = c0 ? c0.uid : 0, was = !sh.hidden;
+  redoStack.push(JSON.stringify(S.cs));
+  S.cs = JSON.parse(undoStack.pop());
+  renum(); all(); syncUndo(); restoreSel(uid, was); say('Ação desfeita.');
+};
+const doRedo = () => {
+  flushEdit();
+  if(!redoStack.length) return;
+  const c0 = sel(), uid = c0 ? c0.uid : 0, was = !sh.hidden;
+  undoStack.push(JSON.stringify(S.cs));
+  S.cs = JSON.parse(redoStack.pop());
+  renum(); all(); syncUndo(); restoreSel(uid, was); say('Ação refeita.');
+};
+
+const save=()=>{try{const{cs,h,sz,d,zoom,viewLevel,num,pfx,px,lgL,lgR,lgLn,lgRn,rul,stM,stI,stF,ls,cols,rows,tab,lastCli,gbW,gbH}=S;localStorage.setItem('mec1',JSON.stringify({cs,h,sz,d,zoom,viewLevel,num,pfx,px,lgL,lgR,lgLn,lgRn,rul,stM,stI,stF,ls,cols,rows,tab,lastCli,gbW,gbH}))}catch(e){}};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+const dims=(sz,d)=>{const L=sz==40?10:5;return 'EW'.includes(d)?[L,2]:[2,L]};
+const hit=(a,b)=>a.x<b.x+b.w&&b.x<a.x+a.w&&a.y<b.y+b.h&&b.y<a.y+a.h;
+const r2=v=>Math.round(v*2)/2;
+const inR=(R,c)=>R.x>=c.x&&R.y>=c.y&&R.x+R.w<=c.x+c.w&&R.y+R.h<=c.y+c.h&&(R.x==c.x||R.x+R.w==c.x+c.w)&&(R.y==c.y||R.y+R.h==c.y+c.h);
+const topAt=(px,py,O=S.cs)=>O.filter(c=>px>=c.x&&px<c.x+c.w&&py>=c.y&&py<c.y+c.h).sort((p,q)=>q.z-p.z)[0];
+const covered=c=>S.cs.find(o=>o.z>c.z&&hit(o,c));
+const unders=c=>c.z>1?S.cs.filter(o=>o.z==c.z-1&&hit(o,c)):[];
+const renum=()=>[...S.cs].sort((p,q)=>p.id-q.id).forEach((c,i)=>c.id=i+1);
+function pile(c){const P=[c];for(let i=0;i<P.length;i++)for(const o of S.cs)if(!P.includes(o)&&hit(o,P[i]))P.push(o);return P.sort((p,q)=>q.z-p.z||p.x-q.x||p.y-q.y)}
+
+function pair(b,px,py){
+  const hz=b.w>b.h,m=hz?px:py,mid=hz?b.x+b.w/2:b.y+b.h/2;
+  const P=S.cs.filter(o=>o!==b&&b.sz==20&&o.sz==20&&o.z==b.z&&o.w==b.w&&o.h==b.h&&(hz?o.y==b.y&&(o.x==b.x+b.w||o.x+o.w==b.x):o.x==b.x&&(o.y==b.y+b.h||o.y+o.h==b.y)));
+  return P.find(o=>((hz?o.x:o.y)<(hz?b.x:b.y))==(m<mid))||P[0];
+}
+
+function zOf(R,O){
+  const ov=O.filter(c=>hit(R,c));if(!ov.length)return 1;
+  const m=Math.max(...ov.map(c=>c.z)),t=ov.filter(c=>c.z==m);
+  if(t.length==1)return inR(R,t[0])?m+1:0;
+  return t.length==2&&R.sz==40&&t.every(c=>c.sz==20&&inR(c,R))?m+1:0;
+}
+
+function findNearestBase(sz, d, tx, ty) {
+  const [w, h] = dims(sz, d);
+  let best = null;
+  let minD = Infinity;
+  for (let r = 0; r <= 20; r += 0.5) {
+     for (let dx = -r; dx <= r; dx += 0.5) {
+        for (let dy = -r; dy <= r; dy += 0.5) {
+           if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
+           let nx = r2(tx + dx), ny = r2(ty + dy);
+           if(nx < 0 || ny < 0 || nx + w > COLS || ny + h > ROWS) continue;
+           const R = {x: nx, y: ny, w, h, sz, d, z: 0};
+           if (zOf(R, S.cs) === 1) {
+              const dist = Math.hypot(nx - tx, ny - ty);
+              if (dist < minD) {
+                 minD = dist;
+                 best = R;
+              }
+           }
+        }
+     }
+     if (best) return { R: { ...best, z: 1 } };
+  }
+  return null;
+}
+
+function plan(sz,d,px,py,ex,off){
+  const O=S.cs.filter(c=>c!==ex),base=topAt(px,py,O),cl=(v,m)=>Math.max(0,Math.min(m,r2(v)));
+  let[w,h]=dims(sz,d),R={x:cl(px-off[0],COLS-w),y:cl(py-off[1],ROWS-h),w,h,sz,d,z:0};
+  if(base){
+    let B=base;
+    if(sz>base.sz){
+      const o=pair(base,px,py);
+      if(!o)return{R,msg:"Para empilhar um 40', são precisos dois de 20' alinhados (um atrás/frente do outro) no mesmo nível."};
+      const x1=Math.min(base.x,o.x),y1=Math.min(base.y,o.y);
+      B={x:x1,y:y1,w:Math.max(base.x+base.w,o.x+o.w)-x1,h:Math.max(base.y+base.h,o.y+o.h)-y1,sz:40,d:base.d};
+    }
+    const hz=B.w>B.h;if(hz!=='EW'.includes(d))d=B.d;
+    [w,h]=dims(sz,d);R={x:B.x,y:B.y,w,h,sz,d,z:0};
+    if(sz<B.sz){if(hz){if(px>B.x+B.w/2)R.x=B.x+B.w-w}else if(py>B.y+B.h/2)R.y=B.y+B.h-h}
+  }
+  R.z=zOf(R,O);
+  if(!R.z)return{R,msg:"Espaço ocupado: só dá para sobrepor de forma simétrica."};
+  if(R.z>MAXZ){R.z=0;return{R,msg:`Limite de ${MAXZ} níveis de empilhamento atingido.`}}
+  return{R};
+}
+
+function sharesEdge(o, c) {
+  if (o.d !== c.d) return false;
+  if (c.d === 'E') return o.x + o.w === c.x + c.w;
+  if (c.d === 'W') return o.x === c.x;
+  if (c.d === 'N') return o.y === c.y;
+  if (c.d === 'S') return o.y + o.h === c.y + c.h;
+  return false;
+}
+
+function geo(c, activeCs){
+  const x = c.x, y = c.y, w = c.w, h = c.h;
+  const pad = 0.06, thick = 0.35;
+  let dx, dy, dw, dh;
+  if(c.d==='E'){ dx = x+w-thick-pad; dy = y+pad; dw = thick; dh = h-2*pad; }
+  else if(c.d==='W'){ dx = x+pad; dy = y+pad; dw = thick; dh = h-2*pad; }
+  else if(c.d==='S'){ dx = x+pad; dy = y+h-thick-pad; dw = w-2*pad; dh = thick; }
+  else { dx = x+pad; dy = y+pad; dw = w-2*pad; dh = thick; }
+
+  const horiz = c.d==='E' || c.d==='W';
+  const sameSeq = activeCs.filter(o => o.d === c.d && hit(o, c) && sharesEdge(o, c));
+  sameSeq.sort((a, b) => b.z - a.z);
+  const k = Math.max(0, sameSeq.findIndex(o => o.id === c.id));
+
+  // Fila de etiquetas: a ponta da seta encosta na borda interna da faixa da porta e, se a fila for longa,
+  // as etiquetas encolhem para nunca passar da extremidade oposta do contêiner mais curto da fila
+  const n = Math.max(1, sameSeq.length);
+  const Lm = Math.min(horiz ? w : h, ...sameSeq.map(o => horiz ? o.w : o.h));
+  const sc = n < 2 ? 1 : Math.min(1, (Lm - thick - pad - .05) / (.95 + .85 * (n - 1)));
+  const along = thick + pad + .55 * sc + .85 * sc * k;
+  let nx = x + w/2, ny = y + h/2;
+  if(c.d==='E') nx = x + w - along;
+  else if(c.d==='W') nx = x + along;
+  else if(c.d==='S') ny = y + h - along;
+  else ny = y + along;
+
+  // Portas opostas na mesma pilha: duas filas lado a lado, cada uma a partir da sua porta
+  if(activeCs.some(o => o !== c && o.d === FL[c.d] && hit(o, c))){
+    const ln = (c.d==='E' || c.d==='N') ? -.5 : .5;
+    if(horiz) ny += ln; else nx += ln;
+  }
+
+  let tx = nx, ty = ny;
+  if(k === 0) {
+    const shift = -0.12 * sc;
+    if(c.d==='E') tx += shift;
+    if(c.d==='W') tx -= shift;
+    if(c.d==='S') ty += shift;
+    if(c.d==='N') ty -= shift;
+  }
+
+  const ptsBase = k === 0
+    ? [[-0.45, -0.4], [0.15, -0.4], [0.55, 0], [0.15, 0.4], [-0.45, 0.4]]
+    : [[-0.4, -0.4], [0.4, -0.4], [0.4, 0.4], [-0.4, 0.4]];
+  const shapePts = ptsBase.map(p => {
+     const a = p[0] * sc, b = p[1] * sc;
+     if(c.d==='E') return [nx + a, ny + b];
+     if(c.d==='W') return [nx - a, ny + b];
+     if(c.d==='S') return [nx - b, ny + a];
+     return [nx + b, ny - a];
+  });
+
+  return { r:[x,y,w,h], dr:[dx,dy,dw,dh], textCenter:[tx, ty], shapePts, scale: sc };
+}
+
+function say(t,bad){const m=$('#msg');m.textContent=t;m.className=bad?'bad':''}
+const hint=()=>say(`Segure em um espaço vazio para adicionar um contêiner; segure sobre um contêiner para empilhar. Para mover, girar ou excluir, destranque o cadeado geral ou o do contêiner (na ficha).`);
+function sync(){
+  const bs=$('#tg-sz');if(bs)bs.textContent=S.sz+"'";
+  const bp=$('#tg-proa');if(bp)bp.textContent=proaR()?'Direita':'Esquerda';
+  const bn=$('#cf-num');if(bn){bn.setAttribute('aria-pressed',!!S.num);bn.textContent=S.num?'Visíveis':'Ocultos'}
+  const br=$('#cf-rul');if(br){br.setAttribute('aria-pressed',!!S.rul);br.textContent=S.rul?'Ligadas':'Desligadas'}
+  syncUndo();syncPP();
+}
+function syncPP(){
+  const pp=$('#pp');if(!pp)return;
+  pp.innerHTML=proaR()?'<span class="pb">◄ POPA</span><span class="pb bow">PROA ►</span>':'<span class="pb bow">◄ PROA</span><span class="pb">POPA ►</span>';
+}
+
+function updLck() {
+  const setB=(b,locked,txt)=>{if(!b)return;b.innerHTML=txt;b.style.color=locked?'var(--bad)':'var(--ac)';b.style.borderColor=locked?'var(--bad)':'var(--ac)'};
+  setB($('#tb-lck'),!!LKD,LKD?'🔒 Trancado':'🔓 Destrancado');
+  const c=sel(),lk=c?isLocked(c):!!LKD;
+  let t;
+  if(lk)t='🔒 Contêiner';
+  else if(c&&LKD&&EXU.has(c.uid)){const n=groupOf(c).length-1;t='🔓 Contêiner'+(n>0?' +'+n:'')}
+  else t='🔓 Contêiner (geral)';
+  setB($('#lck'),lk,t);
+}
+
+const lyZs=()=>[...new Set(S.cs.map(c=>c.z))].sort((a,b)=>a-b);
+const lyName=z=>z===0?'Todas':z===1?'Base':'N'+(z-1);
+function normView(){const L=lyZs();if(L.length<2||!L.includes(S.viewLevel))S.viewLevel=0}
+function syncLy(){
+  const b=$('#tg-vl'),L=lyZs(),one=L.length<2;
+  if(!b)return;
+  b.textContent=one&&L.length?lyName(L[0]):lyName(S.viewLevel||0);
+  b.disabled=one;
+}
+function nextLayer(){
+  const L=lyZs();
+  if(L.length<2)return say(L.length?`Só há uma camada com contêineres: ${lyName(L[0])}.`:'Não há contêineres no mapa.');
+  const O=[0,...L],i=O.indexOf(S.viewLevel||0);
+  S.viewLevel=O[(i+1)%O.length];S.sel=0;
+  if(!sh.hidden)closeSheet();
+  say(`Visualizando: ${S.viewLevel?lyName(S.viewLevel):'todas as camadas'}.`);
+}
+
+function draw(){
+  const z=S.zoom,vl=S.viewLevel||0,m=MG(),W=COLS+m.l+m.r,Ht=ROWS+m.t+m.b,pr=proaR(),nC=Math.floor(COLS),nR=Math.floor(ROWS);
+  const activeCs = [...S.cs].filter(c=>vl===0||c.z<=vl).sort((p,q)=>p.z-q.z);
+  const Q = activeCs.map(c=>[c,geo(c, activeCs)]);
+  const isCovered = c => activeCs.some(q => q.z > c.z && inR(c, q));
+
+  let o='<defs><pattern id="g" x="-.5" y="-.5" width="1" height="1" patternUnits="userSpaceOnUse"><circle cx=".5" cy=".5" r=".075" fill="#222"/></pattern><pattern id="m" x="-.25" y="-.25" width=".5" height=".5" patternUnits="userSpaceOnUse"><circle cx=".25" cy=".25" r=".045" fill="#777"/></pattern></defs>';
+  o+=`<rect x="${-m.l}" y="${-m.t}" width="${W}" height="${Ht}" fill="#fff"/><rect x="-.25" y="-.25" width="${COLS+.5}" height="${ROWS+.5}" fill="url(#m)"/><rect x="-.5" y="-.5" width="${nC+1}" height="${nR+1}" fill="url(#g)"/>`;
+  o+=`<rect x="0" y="0" width="${COLS}" height="${ROWS}" fill="none" stroke="#9db0c4" stroke-width=".06"/>`;
+
+  // régua horizontal: números das colunas (pinos), contados a partir da popa
+  if(S.rul){
+    o+=`<rect x="${-m.l}" y="${-m.t}" width="${W}" height="${m.t-.2}" fill="#eaf0f5"/>`;
+    const st=z>=14?1:5;
+    for(let i=0;i<=nC;i++){const n=pr?i+1:nC-i+1;if(n===1||n%st===0)o+=`<text x="${i}" y="${-m.t/2-.1}" font-size=".72" text-anchor="middle" dominant-baseline="central" fill="#3b4b5e">${n}</text>`}
+  }
+  o+=`<line x1="${pr?COLS:0}" y1="0" x2="${pr?COLS:0}" y2="${ROWS}" stroke="#0a6a8f" stroke-width=".22"/>`;
+
+  const maxZ = Math.max(1, ...S.cs.map(o => o.z));
+  const layerZs = [...new Set(Q.map(q => q[0].z))].sort((a,b)=>a-b);
+
+  for(const curZ of layerZs) {
+     const L = Q.filter(q => q[0].z === curZ);
+     for(const[c,g]of L){
+       if(isCovered(c)) continue;
+       const[x,y,w,h]=g.r,op=(vl>0&&c.z<vl)?' opacity=".3"':'';
+       const ratio = maxZ > 1 ? (c.z - 1) / (maxZ - 1) : 0;
+       const shade = Math.round(255 * (1 - ratio));
+       const strk = shade <= 127 ? '#fff' : '#111';
+
+       o+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="rgb(${shade},${shade},${shade})" stroke="${strk}" stroke-width=".07"${op}/>`
+       if(c.id==S.sel)o+=`<rect x="${x-.12}" y="${y-.12}" width="${w+.24}" height="${h+.24}" fill="none" stroke="#0a6a8f" stroke-width=".12" stroke-dasharray=".4 .25"/>`;
+     }
+
+     for(const[c,g]of L){
+       if(isCovered(c)) continue;
+       const op=(vl>0&&c.z<vl)?' opacity=".3"':'';
+       const ratio = maxZ > 1 ? (c.z - 1) / (maxZ - 1) : 0;
+       const shade = Math.round(255 * (1 - ratio));
+       const strk = shade <= 127 ? '#fff' : '#111';
+
+       o+=`<rect x="${g.dr[0]}" y="${g.dr[1]}" width="${g.dr[2]}" height="${g.dr[3]}" fill="rgb(${shade},${shade},${shade})" stroke="${strk}" stroke-width=".08" stroke-linejoin="round"${op}/>`;
+     }
+  }
+
+  if(S.num) {
+     for(const curZ of layerZs) {
+        const L = Q.filter(q => q[0].z === curZ);
+        for(const[c,g]of L){
+           const big=c.id>99;
+           const op=(vl>0&&c.z<vl)?' opacity=".3"':'';
+           const ratio = maxZ > 1 ? (c.z - 1) / (maxZ - 1) : 0;
+           const shade = Math.round(255 * (1 - ratio));
+           const isDark = shade <= 127;
+           const strk = isDark ? '#fff' : '#111';
+           const tc = isDark ? '#fff' : '#111';
+
+           const ptsStr = g.shapePts.map(p=>p.join(',')).join(' ');
+
+           o+=`<g${op}><polygon points="${ptsStr}" fill="rgb(${shade},${shade},${shade})" stroke="${strk}" stroke-width=".08" stroke-linejoin="round"/><text x="${g.textCenter[0]}" y="${g.textCenter[1]}" font-size="${(big?.45:.6)*g.scale}" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="${tc}">${c.id}</text></g>`;
+        }
+     }
+  }
+  const s=$('#cr');s.setAttribute('viewBox',`${-m.l} ${-m.t} ${W} ${Ht}`);s.setAttribute('width',W*z);s.setAttribute('height',Ht*z);s.innerHTML=o;
+  // régua vertical (fixa na borda esquerda): letras das linhas (pinos)
+  const rv=$('#rv');
+  if(rv){
+    rv.style.display=S.rul?'block':'none';
+    if(S.rul){
+      let r=`<rect x="0" y="${-m.t}" width="${RVW}" height="${Ht}" fill="#eaf0f5"/>`;
+      for(let j=0;j<=nR;j++)r+=`<text x="${RVW/2}" y="${j}" font-size=".85" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="#3b4b5e">${String.fromCharCode(65+j)}</text>`;
+      rv.setAttribute('viewBox',`0 ${-m.t} ${RVW} ${Ht}`);rv.setAttribute('width',RVW*z);rv.setAttribute('height',Ht*z);rv.innerHTML=r;
+    }
+  }
+}
+
+const FLT={q:'',cli:'',niv:'',tam:'',pend:0};
+function renderList(){
+  const fc=$('#f-cli'),fn=$('#f-niv');
+  if(fc){
+    const names=[...new Set(S.cs.map(c=>c.cl||''))].sort();
+    fc.innerHTML='<option value="">Cliente: todos</option>'+names.map(v=>v?`<option value="${esc(v)}">${esc(v)}</option>`:'<option value="__none">(sem cliente)</option>').join('');
+    fc.value=FLT.cli;
+  }
+  if(fn){
+    fn.innerHTML='<option value="">Nível: todos</option>'+lyZs().map(z=>`<option value="${z}">${lvName(z)}</option>`).join('');
+    fn.value=FLT.niv;
+  }
+  const q=FLT.q.trim().toLowerCase();
+  const cs=[...S.cs].filter(c=>{
+    if(FLT.cli==='__none'){if(c.cl)return false}else if(FLT.cli!==''&&c.cl!==FLT.cli)return false;
+    if(FLT.niv!==''&&c.z!==+FLT.niv)return false;
+    if(FLT.tam!==''&&c.sz!==+FLT.tam)return false;
+    if(FLT.pend&&c.cl&&cntN(c.cnt)&&c.lc)return false;
+    if(q&&![c.id,c.cl,c.cnt,c.lc,coord(c)].join(' ').toLowerCase().includes(q))return false;
+    return true;
+  }).sort((p,q)=>p.id-q.id);
+  const fcn=$('#f-cnt');if(fcn)fcn.textContent=S.cs.length?`Mostrando ${cs.length} de ${S.cs.length} contêineres.`:'Nenhum contêiner no mapa.';
+  const maxZ = Math.max(1, ...S.cs.map(o => o.z));
+  const tone=z=>Math.round(255*(1-(maxZ>1?(z-1)/(maxZ-1):0)));
+
+  $('#ls').innerHTML=cs.length?cs.map(c=>{
+    const shade=tone(c.z),tc=shade<=127?'#fff':'#111';
+    const P=pile(c).sort((a,b)=>a.z-b.z);
+    const badgesHtml=P.map(o=>{
+       const oShade=tone(o.z),oTc=oShade<=127?'#fff':'#111',isMe=o.id===c.id;
+       return `<span style="background:${isMe?`rgb(${oShade},${oShade},${oShade})`:'var(--bg)'};color:${isMe?oTc:'var(--mut)'};padding:1px 6px;border-radius:4px;border:1px solid ${isMe?`rgb(${oShade},${oShade},${oShade})`:'var(--ln)'};font-weight:${isMe?'bold':'normal'}">${o.id}</span>`;
+    }).join('<span style="color:var(--ln)">→</span>');
+    const pileHtml=`<div style="grid-column:1/-1;font-size:12.5px;color:var(--mut);margin-top:2px;padding-top:8px;border-top:1px dashed var(--ln);display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+       <span>Pilha:</span>
+       ${badgesHtml}
+       <span style="margin-left:auto;font-size:11.5px">Posição: ${lvName(c.z)}</span>
+    </div>`;
+    return `<button class="row" data-id="${c.id}">
+      <b class="no" style="background:rgb(${shade},${shade},${shade});color:${tc};border-color:rgb(${shade},${shade},${shade})">${c.id}</b>
+      <span><b>${esc(c.cl)||'Sem cliente'}</b><small>${cntN(c.cnt)?esc(c.cnt.trim())+' · ':''}lacres: ${esc(c.lc)||'—'}</small></span>
+      <small>${coord(c)} · ${c.sz}' ${A[c.d]}</small>
+      ${pileHtml}
+    </button>`;
+  }).join(''):'<p class="empty">Nenhum contêiner com esses filtros.</p>';
+}
+const all=()=>{normView();draw();renderList();syncLy();save();const cd=$('#cfg-dlg');if(cd&&!cd.hidden){renderLM();syncGridUI()}};
+$('#ls').onclick=e=>{const r=e.target.closest('.row');if(r){showTab('car');openSheet(+r.dataset.id,true)}};
+
+function add(R){
+  commit();
+  const c={...R,id:S.cs.length+1,uid:++UIDN,cl:S.lastCli||'',cnt:S.px,lc:''};S.cs.push(c);S.sel=c.id;
+  if(S.viewLevel>0&&c.z>S.viewLevel)S.viewLevel=c.z;
+  all();
+  say(`Contêiner nº ${c.id} adicionado${R.z>1?` no ${R.z}º nível`:''}.`);return c;
+}
+
+function stack(c){
+  const hz=c.w>c.h,f=t=>hz?[c.x+c.w*t,c.y+c.h/2]:[c.x+c.w/2,c.y+c.h*t],pts=S.sz<c.sz?[f(.25),f(.75)]:[f(.5)];
+  let b=null,m='';
+  for(const[x,y]of pts){const p=plan(S.sz,S.d,x,y,null,[0,0]);if(p.msg)m=p.msg;else if(!b||p.R.z<b.R.z)b=p}
+  if(!b){say(m,1);return null}
+  return add(b.R);
+}
+
+const sh=$('#sh'),cr=$('#cr'),wr=$('#wr'),sel=()=>S.cs.find(o=>o.id==S.sel);
+const lvl=c=>{const u=unders(c).map(o=>o.id);return u.length?`${lvName(c.z)} sobre ${u.length>1?'os nºs ':'o nº '}${u.join(' e ')}`:''};
+function fillStep(){
+  const bi=$('#stpi'),bf=$('#stpf');if(!bi||!bf)return;
+  bi.textContent='Passo '+STEPI[S.stI];bf.textContent='Passo '+STEPFL[S.stF];
+  bi.setAttribute('aria-pressed',S.stM==='i');bf.setAttribute('aria-pressed',S.stM==='f');
+}
+function fillSheet(c,force){
+  const P=pile(c),t=lvl(c);
+  $('#shn').textContent=c.id;$('#shn').className='no'+(c.z>1?' up':'');
+  $('#shi').textContent=`${c.sz}' · porta ${A[c.d]} · ${coord(c)}${t?' · '+t:''}`;
+  $('#pl').hidden=P.length<2;
+  $('#pl').innerHTML=P.length<2?'':'<small>Pilha</small>'+P.map(o=>`<button data-id="${o.id}" aria-pressed="${o.id==c.id}"><b>${o.id}</b> <small>${lvName(o.z)}</small></button>`).join('');
+  fillStep();
+  $$('#sh input[data-k]').forEach(i=>{if(force||document.activeElement!==i)i.value=c[i.dataset.k]||''});
+  fillPx(c,force);fillCli(c,force);
+}
+function reveal(){const r=wr.getBoundingClientRect(),lim=innerHeight-sh.offsetHeight-6;if(r.bottom>lim)scrollBy({top:Math.min(r.bottom-lim,r.top-4),behavior:'smooth'})}
+const rvPx=()=>S.rul?RVW*S.zoom:0;
+function follow(c){const z=S.zoom,m=MG(),l=(c.x+m.l)*z,r=(c.x+c.w+m.l)*z,v=wr.clientWidth-rvPx();if(l<wr.scrollLeft)wr.scrollLeft=l-z;else if(r>wr.scrollLeft+v)wr.scrollLeft=r-v+z}
+function centerOn(c){
+  const z=S.zoom,m=MG(),v=wr.clientWidth-rvPx();
+  wr.scrollLeft=(c.x+c.w/2+m.l)*z-v/2;
+  const r=cr.getBoundingClientRect(),cy=r.top+(c.y+c.h/2+m.t)*z,vis=sh.hidden?innerHeight:innerHeight-sh.offsetHeight;
+  scrollBy({top:cy-vis/2,behavior:'smooth'});
+}
+
+function openSheet(id,center){
+  const c=S.cs.find(o=>o.id==id);if(!c)return;
+  const sw=sh.hidden||shownUid!==c.uid;
+  if(sw){flushEdit();const a=document.activeElement;if(a&&a.blur&&sh.contains&&sh.contains(a))a.blur();EXU.clear()}
+  shownUid=c.uid;
+  S.sel=id; updLck(); fillSheet(c,sw); sh.hidden=false; document.body.classList.add('so'); draw();
+  if(center)centerOn(c);else reveal();
+}
+function closeSheet(){
+  sh.hidden=true;document.body.classList.remove('so');S.sel=0;shownUid=0;EXU.clear();
+  const a=document.activeElement;if(a&&a.blur)a.blur();draw();
+}
+
+// Pilha inteira: ao mover um contêiner, os de cima vão junto; os que dividem o apoio de um contêiner arrastado também
+const GR=1/16;
+function groupOf(c){
+  const G=[c],drag=new Set();
+  for(let i=0;i<G.length;i++){
+    const g=G[i];
+    for(const o of S.cs)if(!G.includes(o)&&o.z>g.z&&hit(o,g)){G.push(o);drag.add(o)}
+    if(drag.has(g))for(const q of S.cs)if(!G.includes(q)&&q.z===g.z-1&&hit(q,g)){G.push(q);drag.add(q)}
+  }
+  return G;
+}
+function tryMove(G,dx,dy){
+  const O=S.cs.filter(o=>!G.includes(o)),placed=[],res=new Map();
+  for(const g of [...G].sort((a,b)=>a.z-b.z)){
+    const R={x:g.x+dx,y:g.y+dy,w:g.w,h:g.h,sz:g.sz,d:g.d};
+    if(R.x<0||R.y<0||R.x+R.w>COLS||R.y+R.h>ROWS)return null;
+    const z=zOf(R,O.concat(placed));
+    if(!z||z>MAXZ)return null;
+    R.z=z;placed.push(R);res.set(g,R);
+  }
+  return res;
+}
+function mv(dir){
+  const c=sel();if(!c)return 0;
+  const[ux,uy]=U[dir],G=groupOf(c);let R=null;
+  if(G.some(g=>isLocked(g))){say('Destranque o cadeado do contêiner (ou o cadeado geral) primeiro para mover.',1);return 0}
+  if(c.z>1){for(let q=GR;q<=COLS&&!R;q+=GR)R=tryMove(G,ux*q,uy*q)}
+  else{for(let q=stepVal();q>=GR-1e-9&&!R;q-=GR)R=tryMove(G,ux*q,uy*q)}
+  if(!R){say(c.z>1?'Não há lugar livre nessa direção.':'Espaço ocupado ou limite do croqui nessa direção.',1);return 0}
+  G.forEach(g=>Object.assign(g,R.get(g)));
+  const top=Math.max(...G.map(g=>g.z));if(S.viewLevel>0&&top>S.viewLevel)S.viewLevel=top;
+  all();fillSheet(c);follow(c);
+  if(G.length>1)say(`Pilha movida junto: ${G.length} contêineres.`);
+  return 1;
+}
+function rot(c){
+  if(isLocked(c)) return say('Destranque o cadeado do contêiner (ou o cadeado geral) primeiro para girar.', 1);
+  const up=covered(c);
+  if(up)return say(`O nº ${c.id} está sob o nº ${up.id}: só o contêiner do topo da pilha pode girar.`,1);
+  const d=RT[c.d],[w,h]=dims(c.sz,d),cx=c.x+c.w/2,cy=c.y+c.h/2,O=S.cs.filter(o=>o!==c);
+  const R={x:Math.max(0,Math.min(COLS-w,r2(cx-w/2))),y:Math.max(0,Math.min(ROWS-h,r2(cy-h/2))),w,h,sz:c.sz,d},z=zOf(R,O);
+  commit();
+  if(z&&z<=MAXZ){
+    R.z=z;Object.assign(c,R);
+    if(S.viewLevel>0&&c.z>S.viewLevel)S.viewLevel=c.z;
+    all();if(!sh.hidden)fillSheet(c);follow(c);
+    return say(`Contêiner nº ${c.id} girado 90°.`);
+  }
+  c.d=FL[c.d];
+  all();if(!sh.hidden)fillSheet(c);
+  say(`Sem espaço para girar 90°: contêiner nº ${c.id} girado 180°.`);
+}
+const selVis=()=>{const c=sel(),vl=S.viewLevel||0;return c&&(vl===0||c.z<=vl)?c:null};
+function rotBar(){
+  const c=selVis();
+  if(c)return rot(c);
+  S.d=RT[S.d];save();
+  say(`Próximo contêiner: porta ${A[S.d]}.`);
+}
+
+sh.addEventListener('focusin', e => {
+  if(e.target.tagName === 'INPUT') e.target.dataset.st = JSON.stringify(S.cs);
+});
+sh.addEventListener('focusout', e => {
+  if(e.target.tagName === 'INPUT' && e.target.dataset.st) {
+    const old = e.target.dataset.st;
+    if(old !== JSON.stringify(S.cs)) {
+       undoStack.push(old);
+       redoStack=[];
+       syncUndo();
+    }
+    delete e.target.dataset.st;
+  }
+});
+sh.oninput=e=>{const c=sel(),t=e.target;if(!c)return;if(t.id==='nm'){const v=fmtNum(t.value);t.value=v;c.cnt=cntS(cntP(c.cnt)||S.px,v);save();renderList();return}const k=t.dataset.k;if(k){c[k]=t.value;save();renderList()}};
+const fmtNum=v=>{const d=String(v).replace(/[\s-]/g,'');if(!/^\d*$/.test(d))return v;const t=d.slice(0,7);return t.length>6?t.slice(0,6)+'-'+t.slice(6):t};
+function fillPx(c,force){
+  const s=$('#px'),n=$('#nm'),p=cntP(c.cnt)||S.px;
+  if(p&&!S.pfx.includes(p))S.pfx.push(p);
+  s.innerHTML=S.pfx.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')+'<option value="__new">+ Novo…</option>';
+  s.value=p;
+  if(force||document.activeElement!==n)n.value=cntN(c.cnt);
+}
+$('#px').onchange=e=>{
+  const c=sel(),v=e.target.value;if(!c)return;
+  if(v==='__new'){e.target.hidden=true;const n=$('#pn');n.hidden=false;n.value='';n.focus();return}
+  commit();S.px=v;c.cnt=cntS(v,cntN(c.cnt));all();fillSheet(c);
+};
+function donePx(){
+  const n=$('#pn');if(n.hidden)return;
+  const v=n.value.trim().toUpperCase(),c=sel();
+  delete n.dataset.st;n.hidden=true;$('#px').hidden=false;
+  if(c&&/^[A-Z]{3,4}$/.test(v)){commit();if(!S.pfx.includes(v))S.pfx.push(v);S.px=v;c.cnt=cntS(v,cntN(c.cnt));all();renderLM()}
+  else if(v)say('Prefixo inválido: use 3 ou 4 letras.',1);
+  if(c)fillSheet(c);
+}
+$('#pn').onblur=donePx;
+$('#pn').oninput=e=>{e.target.value=e.target.value.replace(/[^A-Za-z]/g,'').toUpperCase()};
+function fillCli(c,force){
+  const s=$('#cls');if(!s)return;
+  const cur=(c.cl||'').trim();
+  if(cur&&!S.ls.cli.includes(cur))S.ls.cli.push(cur);
+  s.innerHTML='<option value="">—</option>'+S.ls.cli.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+'<option value="__new">+ Novo…</option>';
+  s.value=cur;
+}
+$('#cls').onchange=e=>{
+  const c=sel(),v=e.target.value;if(!c)return;
+  if(v==='__new'){e.target.hidden=true;const n=$('#cln');n.hidden=false;n.value='';n.focus();return}
+  commit();c.cl=v;if(v)S.lastCli=v;all();
+};
+function doneCli(){
+  const n=$('#cln');if(n.hidden)return;
+  const v=n.value.trim().toUpperCase(),c=sel();
+  delete n.dataset.st;n.hidden=true;$('#cls').hidden=false;
+  if(c&&v){commit();if(!S.ls.cli.includes(v))S.ls.cli.push(v);c.cl=v;S.lastCli=v;all();renderLM()}
+  if(c)fillCli(c);
+}
+$('#cln').onblur=doneCli;
+$('#cln').oninput=e=>{e.target.value=e.target.value.toUpperCase()};
+$('#cln').onkeydown=e=>{if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();e.stopPropagation();if(e.key==='Escape')e.target.value='';e.target.blur()}};
+$('#pn').onkeydown=e=>{if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();e.stopPropagation();if(e.key==='Escape')e.target.value='';e.target.blur()}};
+sh.onkeydown=e=>{
+  if(e.key=='Escape')return closeSheet();
+  if(e.key!='Enter')return;e.preventDefault();
+  const I=$$('#sh input:not([hidden])'),k=I.indexOf(e.target);k<I.length-1?I[k+1].focus():closeSheet();
+};
+sh.onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.id)return openSheet(+b.dataset.id);
+  const a=b.dataset.a,c=sel();if(!a||!c)return;
+  if(a=='x')return closeSheet();
+  if(a=='undo')return doUndo();
+  if(a=='redo')return doRedo();
+  if(a=='lock'){
+    if(!LKD)return say('O cadeado geral está aberto. Para travar, use o cadeado geral.');
+    const Gp=groupOf(c);
+    if(EXU.has(c.uid)){Gp.forEach(g=>EXU.delete(g.uid));say('Contêiner trancado.')}
+    else{Gp.forEach(g=>EXU.add(g.uid));say(Gp.length>1?'Contêiner liberado, junto com os '+(Gp.length-1)+' que se movem com ele.':'Contêiner liberado.')}
+    updLck();return;
+  }
+  if(a=='stpi'){if(S.stM==='i')S.stI=(S.stI+1)%4;else S.stM='i';save();fillStep();return say('Passo: '+STEPI[S.stI]+(STEPI[S.stI]===1?' módulo.':' módulos.'))}
+  if(a=='stpf'){if(S.stM==='f')S.stF=(S.stF+1)%4;else S.stM='f';save();fillStep();return say('Passo: '+STEPFL[S.stF]+' de módulo.')}
+  if(a=='rot')return rot(c);
+  if(a=='flip'){
+     if(isLocked(c)) return say('Destranque o cadeado do contêiner (ou o cadeado geral) primeiro para inverter a porta.', 1);
+     commit();
+     c.d=FL[c.d]; all(); return fillSheet(c);
+  }
+  if(a=='stack'){const n=stack(c);if(n){openSheet(n.id);EXU.add(n.uid);updLck()}return}
+  if(a=='del'){
+     if(isLocked(c)) return say('Destranque o cadeado do contêiner (ou o cadeado geral) primeiro para excluir.', 1);
+     const up=covered(c);
+     if(up)return say(`O nº ${up.id} está sobre o nº ${c.id}. Exclua o nº ${up.id} primeiro.`,1);
+     commit();
+     S.cs=S.cs.filter(o=>o!==c);renum();closeSheet();all();say(`Contêiner nº ${c.id} excluído. A numeração foi reajustada.`);
+     return;
+  }
+};
+let rp=null;
+const stop=()=>{if(rp){clearTimeout(rp.t);clearInterval(rp.i);rp=null}};
+sh.onpointerdown=e=>{
+  const b=e.target.closest('[data-mv]');if(!b)return;
+  e.preventDefault();stop();const d=b.dataset.mv;
+  {const cc=sel();if(!cc||groupOf(cc).some(g=>isLocked(g))){say('Destranque o cadeado do contêiner (ou o cadeado geral) primeiro para mover.',1);return}}
+  const stateBeforeMove = JSON.stringify(S.cs);
+  let moved = false;
+  const attemptMove = () => {
+     const res = mv(d);
+     if(res) moved = true;
+     return res;
+  };
+  if(!attemptMove()) return;
+  undoStack.push(stateBeforeMove);
+  redoStack=[];
+  syncUndo();
+  const r=rp={};r.t=setTimeout(()=>{r.i=setInterval(()=>{attemptMove()||stop()},90)},380);
+};
+['pointerup','pointercancel','pointerleave'].forEach(t=>sh.addEventListener(t,stop));
+if(window.visualViewport){const v=window.visualViewport,f=()=>{sh.style.bottom=Math.max(0,innerHeight-v.height-v.offsetTop)+'px'};v.addEventListener('resize',f);v.addEventListener('scroll',f)}
+
+const pt=(x,y)=>{const r=cr.getBoundingClientRect(),m=MG();return[(x-r.left)/r.width*(COLS+m.l+m.r)-m.l,(y-r.top)/r.height*(ROWS+m.t+m.b)-m.t]};
+function hold(){
+  const g=G;if(!g||g.m!='w')return;g.m='x';
+  if(g.px<0||g.px>COLS||g.py<0||g.py>ROWS)return;
+  if(navigator.vibrate)navigator.vibrate(18);
+  if(!sh.hidden)closeSheet();
+  const[w,h]=dims(S.sz,S.d),p=plan(S.sz,S.d,g.px,g.py,null,[w/2,h/2]);
+  let c=null;
+  if(p.msg){
+    const tx = r2(g.px - w/2), ty = r2(g.py - h/2);
+    const nb = findNearestBase(S.sz, S.d, tx, ty);
+    if(nb){
+      c=add(nb.R);
+      say(`Local ocupado. O contêiner foi posicionado no espaço livre mais próximo na base.`);
+    } else say(p.msg,1);
+  } else c=add(p.R);
+  if(c){openSheet(c.id,true);EXU.add(c.uid);updLck()}
+}
+function tap(px,py){
+  const vl=S.viewLevel||0;
+  const L=S.cs.filter(c=>px>=c.x&&px<c.x+c.w&&py>=c.y&&py<c.y+c.h&&(vl===0||c.z<=vl)).sort((p,q)=>q.z-p.z);
+  if(!L.length){if(!sh.hidden)closeSheet();else if(S.sel){S.sel=0;draw()}return}
+  const i=sh.hidden?-1:L.findIndex(c=>c.id==S.sel);openSheet(L[(i+1)%L.length].id);
+}
+const PT=new Map();let pinch=null;
+function setZoom(nz,cx,cy){
+  nz=Math.max(6,Math.min(48,nz));
+  if(Math.abs(nz-S.zoom)<.05)return;
+  const z0=S.zoom,wrR=wr.getBoundingClientRect(),crR=cr.getBoundingClientRect(),vx=cx-wrR.left;
+  const mx=(wr.scrollLeft+vx-rvPx())/z0,my=(cy-crR.top)/z0;
+  S.zoom=nz;draw();save();
+  wr.scrollLeft=mx*nz-vx+rvPx();
+  scrollBy({top:my*(nz-z0)});
+}
+cr.onpointerdown=e=>{
+  PT.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(PT.size===2){
+    if(G){clearTimeout(G.t);G.m='x'}
+    const[a,b]=[...PT.values()];pinch={d0:Math.hypot(a.x-b.x,a.y-b.y)||1,z0:S.zoom};return;
+  }
+  if(!e.isPrimary||e.button>0)return;
+  const[px,py]=pt(e.clientX,e.clientY);G={x:e.clientX,y:e.clientY,px,py,m:'w'};G.t=setTimeout(hold,LP);
+};
+cr.onpointermove=e=>{
+  if(PT.has(e.pointerId))PT.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pinch&&PT.size>=2){const[a,b]=[...PT.values()];setZoom(pinch.z0*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d0,(a.x+b.x)/2,(a.y+b.y)/2);return}
+  const g=G;if(g&&g.m=='w'&&Math.hypot(e.clientX-g.x,e.clientY-g.y)>10){clearTimeout(g.t);g.m='x'}
+};
+const endPtr=e=>{PT.delete(e.pointerId);if(PT.size<2)pinch=null};
+cr.onpointerup=e=>{endPtr(e);const g=G;if(!g)return;G=null;clearTimeout(g.t);if(g.m=='w')tap(g.px,g.py)};
+cr.onpointercancel=e=>{endPtr(e);if(G){clearTimeout(G.t);G=null}};
+cr.oncontextmenu=e=>e.preventDefault();
+wr.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();setZoom(S.zoom*Math.exp(-e.deltaY*.01),e.clientX,e.clientY)},{passive:false});
+wr.addEventListener('gesturestart',e=>e.preventDefault());
+
+let armedC=0;
+$('.bar').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.id=='pdf')return openPdfDialog();
+  if(b.id=='btn-cfg')return openCfg();
+  if(b.id=='btn-undo'){ doUndo(); return; }
+  if(b.id=='btn-redo'){ doRedo(); return; }
+  if(b.id=='tg-vl'){ nextLayer(); sync(); all(); return; }
+  if(b.id=='tg-proa'){ S.h.proa=proaR()?'E':''; save(); sync(); all(); scrollToStern(); say('Proa à '+(proaR()?'direita':'esquerda')+'.'); return; }
+  if(b.id=='tg-sz'){ S.sz=S.sz===40?20:40; save(); sync(); say("Próximo contêiner: "+S.sz+"'."); return; }
+  if(b.id=='tb-rot'){ rotBar(); return; }
+  if(b.id=='tb-lck'){ LKD = LKD ? 0 : 1; updLck(); say(LKD ? 'Todos os contêineres travados.' : 'Todos os contêineres liberados para mover, girar e excluir.'); return; }
+  if(b.id=='btn-clr'){
+    if(!armedC){armedC=1;b.textContent='Toque de novo para apagar';setTimeout(()=>{armedC=0;b.textContent='Apagar tudo'},3500);return}
+    armedC=0;b.textContent='Apagar tudo';
+    if(!S.cs.length)return say('Não há contêineres para apagar.');
+    commit();if(!sh.hidden)closeSheet();S.cs=[];S.sel=0;all();say('Todos os contêineres foram removidos. Dá para desfazer.');return;
+  }
+};
+
+let armedH=0;
+$('#hclr').onclick=e=>{
+  const b=e.currentTarget;
+  if(!armedH){armedH=1;b.textContent='Toque de novo para limpar';setTimeout(()=>{armedH=0;b.textContent='Limpar cabeçalho'},3500);return}
+  armedH=0;b.textContent='Limpar cabeçalho';
+  S.h={cia:S.h.cia,fil:S.h.fil,proa:S.h.proa};save();syncHeader();say('Cabeçalho limpo (empresa e filial mantidas).');
+};
+$$('[data-h]').forEach(i=>{i.oninput=()=>{S.h[i.dataset.h]=i.value;save()}});
+
+let pdfOpts = [];
+
+window.toggleAllOpts = () => {
+  const anyUnchecked = pdfOpts.some(o => !o.checked);
+  pdfOpts.forEach(o => o.checked = anyUnchecked);
+  renderPdfOpts();
+};
+
+function renderPdfOpts() {
+  const ctn = $('#dlg-opts');
+  if(!pdfOpts.length) { ctn.innerHTML = '<p class="empty">Nenhuma visão disponível (o mapa está vazio).</p>'; return; }
+  ctn.innerHTML = pdfOpts.map((o, i) => `
+    <div class="pdf-opt-row" data-idx="${i}" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;background:var(--cd);padding:6px 8px;border-radius:6px;border:1px solid var(--ln)">
+      <input type="checkbox" class="cb-inc" ${o.checked ? 'checked' : ''} style="width:18px;height:18px;cursor:pointer" title="Incluir no PDF">
+      <span style="flex:1;font-size:14px;font-weight:600">${o.title}</span>
+      <button class="btn-up" data-idx="${i}" ${i===0?'disabled':''} style="min-width:30px;min-height:30px;padding:0;font-size:12px">▲</button>
+      <button class="btn-dn" data-idx="${i}" ${i===pdfOpts.length-1?'disabled':''} style="min-width:30px;min-height:30px;padding:0;font-size:12px">▼</button>
+    </div>
+  `).join('');
+  
+  $$('.cb-inc').forEach(cb => cb.onchange = e => pdfOpts[e.target.closest('.pdf-opt-row').dataset.idx].checked = e.target.checked);
+  $$('.btn-up').forEach(btn => btn.onclick = e => {
+    const i = +e.target.dataset.idx;
+    if(i > 0) { [pdfOpts[i-1], pdfOpts[i]] = [pdfOpts[i], pdfOpts[i-1]]; renderPdfOpts(); }
+  });
+  $$('.btn-dn').forEach(btn => btn.onclick = e => {
+    const i = +e.target.dataset.idx;
+    if(i < pdfOpts.length-1) { [pdfOpts[i], pdfOpts[i+1]] = [pdfOpts[i+1], pdfOpts[i]]; renderPdfOpts(); }
+  });
+}
+
+function openPdfDialog() {
+  if (S.cs.length === 0) return say('O mapa está vazio. Adicione contêineres para gerar o PDF.', 1);
+
+  const activeZs = [...new Set(S.cs.map(c=>c.z))].sort((a,b)=>a-b);
+  
+  pdfOpts = [];
+  // Gera versão COM e SEM identificação para cada camada ativa!
+  if (activeZs.length > 1) pdfOpts.push({ z: 0, num: true, title: 'Todas as camadas (Com Identificação)', checked: false });
+  if (activeZs.length > 1) pdfOpts.push({ z: 0, num: false, title: 'Todas as camadas (Sem Identificação)', checked: false });
+  
+  for (const curZ of activeZs) {
+     const t = activeZs.length < 2 ? 'Croqui' : curZ === 1 ? 'Camada Base' : `Nível ${curZ - 1}`;
+     pdfOpts.push({ z: curZ, num: true, title: activeZs.length < 2 ? 'Com números' : `${t} (Com Identificação)`, checked: false });
+     pdfOpts.push({ z: curZ, num: false, title: activeZs.length < 2 ? 'Sem números' : `${t} (Sem Identificação)`, checked: false });
+  }
+  
+  // Seleciona a visão atual correspondente (Com/Sem numero dependendo do toggle da UI)
+  if (pdfOpts.length > 0) {
+      const viewLevel = activeZs.length < 2 ? activeZs[0] : (S.viewLevel || 0);
+      const hasNum = !!S.num;
+      const currentOpt = pdfOpts.find(o => o.z === viewLevel && o.num === hasNum);
+      if (currentOpt) currentOpt.checked = true;
+      else pdfOpts[0].checked = true; // Cai no "Todas as camadas" seguro
+  }
+  
+  renderPdfOpts();
+  
+  $('#btn-pdf-gen').onclick = () => { $('#pdf-dlg').hidden = true; generatePdf(); };
+  $('#btn-pdf-cancel').onclick = () => $('#pdf-dlg').hidden = true;
+  $('#pdf-dlg').hidden = false;
+}
+
+async function generatePdf(){
+  const J=window.jspdf&&window.jspdf.jsPDF;
+  if(!J)return say('A biblioteca de PDF não carregou. Confira a conexão e recarregue a página.',1);
+  
+  const seq = pdfOpts.filter(o => o.checked);
+  if(!seq.length) return say('Nenhuma visão selecionada para impressão.', 1);
+
+  const D=new J({orientation:'landscape',unit:'mm',format:'a4'}),H=S.h;
+  D.setProperties({ title: 'Mapa de embarque de contêineres' + (H.bal ? ' - ' + H.bal : ''), subject: 'Mapa de embarque de contêineres', author: H.cia || '', creator: 'Mapa de embarque' });
+  const DIM = { fl: 236, ln: 150, tx: 120 };
+  const multi = lyZs().length > 1;
+  const DASH = '( - - )';
+  const T=(t,x,y,sz,st,al)=>{D.setFont('helvetica',st||'normal');D.setFontSize(sz);D.text(String(t),x,y,{align:al||'left'})};
+  const Line=(a,b,c,d,w)=>{D.setLineWidth(w||.3);D.line(a,b,c,d)};
+  const fit=(t,x,y,mw,sz,st)=>{t=String(t||'');D.setFont('helvetica',st||'normal');let s=sz;D.setFontSize(s);while(s>5.5&&D.getTextWidth(t)>mw){s-=.5;D.setFontSize(s)}D.text(t,x,y)};
+  
+  const pagesData = [];
+  const listOf = z => [...S.cs].filter(c => z === 0 || c.z === z).sort((p,q)=>p.id-q.id);
+  // Croquis do mesmo nível ficam juntos (com e sem identificação) e as fichas vêm logo depois
+  for (let i = 0; i < seq.length; ) {
+      let j = i; while (j < seq.length && seq[j].z === seq[i].z) j++;
+      const grp = seq.slice(i, j);
+      grp.forEach(opt => pagesData.push({ type: 'croqui', opt }));
+      const wn = grp.find(o => o.num);
+      if (wn) {
+          const list = listOf(wn.z);
+          for (let k = 0; k < list.length; k += 24) pagesData.push({ type: 'list', opt: wn, list: list.slice(k, k + 24) });
+      }
+      i = j;
+  }
+  const totalPages = pagesData.length;
+
+  const drawHeader = (isList, curVlStr) => {
+    D.setDrawColor(0); D.setLineWidth(.7); D.setFillColor(255);
+    
+    // Quadro Superior: Nome Empresa e Logos
+    D.rect(10, 8, 277, 12);
+    const lg = (src, x, w, al) => {
+      if (!src) return;
+      try {
+        const p = D.getImageProperties(src), r = Math.min(w / p.width, 10 / p.height), iw = p.width * r, ih = p.height * r;
+        D.addImage(src, 'PNG', al === 'r' ? x + w - iw : x, 9 + (10 - ih) / 2, iw, ih);
+      } catch (e) {}
+    };
+    lg(S.lgL, 12, 40, 'l'); lg(S.lgR, 245, 40, 'r');
+    T(H.cia || '', 148.5, 13.5, 11, 'bold', 'center');
+    T(H.fil || '', 148.5, 17.5, 8, 'normal', 'center');
+
+    // Quadro Inferior: Título Sublinhado e Dados Divididos em 2 Linhas
+    D.rect(10, 20, 277, 24);
+    let titleStr = 'MAPA DE EMBARQUE DE CONTÊINERES';
+    if(isList) titleStr += ' - FICHA DE IDENTIFICAÇÃO';
+    if(curVlStr && multi) titleStr += ` - Visão: ${curVlStr.split(' (')[0]}`; // Tira o sufixo "Com Num" do titulo
+    
+    T(titleStr, 148.5, 25, 11, 'bold', 'center');
+    const w = D.getTextWidth(titleStr);
+    Line(148.5 - w/2, 26, 148.5 + w/2, 26, .4);
+
+    const seg=(x1,x2,y,v)=>{Line(x1,y,x2,y,.25);if(v)fit(v,x1+1,y-.8,x2-x1-2,9)};
+    const dt = v => v ? v.split('-').reverse().join('/') : '';
+    const y1 = 33, y2 = 40;
+    
+    // Linha 1
+    T('DATA INÍCIO:', 12, y1, 8.5, 'bold'); seg(33, 56, y1, H.dt1 ? dt(H.dt1) : '');
+    T('HORA:', 59, y1, 8.5, 'bold'); seg(69, 85, y1, H.ini);
+    T('EMPURRADOR:', 89, y1, 8.5, 'bold'); seg(113, 195, y1, H.emp);
+    T('BALSA:', 200, y1, 8.5, 'bold'); seg(213, 284, y1, H.bal);
+
+    // Linha 2 - Divisão simétrica de espaços (Conferente, Vistoriador, Empilhador)
+    T('DATA TÉRMINO:', 12, y2, 8.5, 'bold'); seg(37, 56, y2, H.dt2 ? dt(H.dt2) : '');
+    T('HORA:', 59, y2, 8.5, 'bold'); seg(69, 85, y2, H.ter);
+    T('CONFERENTE:', 89, y2, 8.5, 'bold'); seg(112, 150, y2, H.conf);
+    T('VISTORIADOR:', 154, y2, 8.5, 'bold'); seg(177, 215, y2, H.vis);
+    T('EMPILHADOR:', 219, y2, 8.5, 'bold'); seg(242, 284, y2, H.empi);
+  };
+
+  const footer=(pg, tpg)=>{
+    D.setTextColor(0); D.setFont('helvetica', 'normal');
+    T(`Página ${pg} de ${tpg}`, 285, 205, 9, 'normal', 'right');
+  };
+
+  const croqui=(ox, oy, P, curVl, showNum)=>{
+    // Restaura a Malha de Pinos no Mapa!
+    D.setFillColor(90);
+    for(let r=0; r<=ROWS*2; r++) {
+       for(let c=0; c<=COLS*2; c++) {
+          if(r%2 || c%2) D.circle(ox + c/2*P, oy + r/2*P, .11*(P/4.5), 'F');
+       }
+    }
+    D.setFillColor(0);
+    for(let r=0; r<=ROWS; r++) {
+       for(let c=0; c<=COLS; c++) {
+          D.circle(ox + c*P, oy + r*P, .2*(P/4.5), 'F');
+       }
+    }
+    
+    const activeCs = [...S.cs].filter(c=>curVl===0||c.z<=curVl).sort((p,q)=>p.z-q.z);
+    const Q = activeCs.map(c=>[c,geo(c, activeCs)]);
+    const isCovered = c => activeCs.some(q => q.z > c.z && inR(c, q));
+    const maxZ = Math.max(1, ...S.cs.map(o => o.z));
+    const layerZs = [...new Set(Q.map(q => q[0].z))].sort((a,b)=>a-b);
+    
+    for(const curZ of layerZs) {
+       const layerItems = Q.filter(q => q[0].z === curZ);
+       for(const[c,g]of layerItems){
+          if(isCovered(c)) continue;
+          const[x,y,w,h]=g.r, isDim=(curVl>0&&c.z<curVl);
+          const ratio = maxZ > 1 ? (c.z - 1) / (maxZ - 1) : 0;
+          const shade = Math.round(255 * (1 - ratio));
+          const strk = shade <= 127 ? 255 : 0;
+          
+          D.setDrawColor(isDim?DIM.ln:strk);
+          D.setLineWidth(.25*(P/4.5));
+          D.setFillColor(isDim?DIM.fl:shade, isDim?DIM.fl:shade, isDim?DIM.fl:shade);
+          D.rect(ox+x*P, oy+y*P, w*P, h*P,'FD');
+       }
+       
+       for(const[c,g]of layerItems){
+          if(isCovered(c)) continue;
+          const isDim=(curVl>0&&c.z<curVl);
+          const ratio = maxZ > 1 ? (c.z - 1) / (maxZ - 1) : 0;
+          const shade = Math.round(255 * (1 - ratio));
+          const strk = shade <= 127 ? 255 : 0;
+          
+          D.setDrawColor(isDim?DIM.ln:strk);
+          D.setLineWidth(.25*(P/4.5));
+          if(isDim) D.setFillColor(DIM.fl, DIM.fl, DIM.fl);
+          else D.setFillColor(shade, shade, shade);
+          D.rect(ox+g.dr[0]*P, oy+g.dr[1]*P, g.dr[2]*P, g.dr[3]*P, 'FD');
+       }
+    }
+    
+    if(showNum) {
+       for(const curZ of layerZs) {
+          const layerItems = Q.filter(q => q[0].z === curZ);
+          for(const[c,g]of layerItems){
+             const isDim=(curVl>0&&c.z<curVl), big=c.id>99;
+             const ratio = maxZ > 1 ? (c.z - 1) / (maxZ - 1) : 0;
+             const shade = Math.round(255 * (1 - ratio));
+             const isDark = shade <= 127;
+             const strk = isDark ? 255 : 0;
+             const txtClr = isDark ? 255 : 0;
+             
+             D.setDrawColor(isDim?DIM.ln:strk);
+             D.setLineWidth(.25*(P/4.5));
+             if(isDim) {
+                D.setFillColor(DIM.fl, DIM.fl, DIM.fl);
+                D.setTextColor(DIM.tx);
+             } else {
+                D.setFillColor(shade, shade, shade);
+                D.setTextColor(txtClr);
+             }
+             
+             const start = g.shapePts[0];
+             const lines = [];
+             for(let j=1; j<g.shapePts.length; j++) {
+                lines.push([ (g.shapePts[j][0] - g.shapePts[j-1][0])*P, (g.shapePts[j][1] - g.shapePts[j-1][1])*P ]);
+             }
+             D.lines(lines, ox+start[0]*P, oy+start[1]*P, [1,1], 'FD', true);
+             
+             T(c.id, ox+g.textCenter[0]*P, oy+g.textCenter[1]*P+(big?.7:.9)*(P/4.5)*g.scale, (big?5:7)*(P/4.5)*g.scale, 'bold', 'center');
+          }
+       }
+    }
+    D.setTextColor(0);D.setFillColor(0);D.setDrawColor(0);
+  };
+  
+  const drawLegend = (showNum, curVl) => {
+    const maxZ = Math.max(1, ...S.cs.map(o => o.z));
+    const tone = z => Math.round(255 * (1 - (maxZ > 1 ? (z - 1) / (maxZ - 1) : 0)));
+    const contrast = sh => sh <= 127 ? 255 : 0;
+    const m = 2.2, FS = 7, RH = 6.6, TX = 34, XR = 285;
+    const tw = t => { D.setFont('helvetica', 'normal'); D.setFontSize(FS); return D.getTextWidth(t); };
+
+    // Ícones: mesmo desenho do croqui (contêiner com faixa da porta, etiquetas numeradas, tons e malha)
+    const cnt = (x, yc, len, door) => {
+      const w = len * m, h = 2 * m, y = yc - h / 2;
+      D.setLineWidth(.2); D.setDrawColor(0); D.setFillColor(255, 255, 255);
+      D.rect(x, y, w, h, 'FD');
+      D.rect(door === 'E' ? x + w - .41 * m : x + .06 * m, y + .06 * m, .35 * m, h - .12 * m, 'FD');
+    };
+    const tag = (cx, yc, n, arrow, sh, s = 4.4, dr = 1) => {
+      
+      const pts = (arrow ? [[-.45, -.4], [.15, -.4], [.55, 0], [.15, .4], [-.45, .4]] : [[-.4, -.4], [.4, -.4], [.4, .4], [-.4, .4]]).map(p => [cx + dr * p[0] * s, yc + p[1] * s]);
+      D.setLineWidth(.2); D.setDrawColor(contrast(sh)); D.setFillColor(sh, sh, sh);
+      D.lines(pts.slice(1).map((p, i) => [p[0] - pts[i][0], p[1] - pts[i][1]]), pts[0][0], pts[0][1], [1, 1], 'FD', true);
+      D.setTextColor(contrast(sh));
+      T(n, cx - dr * (arrow ? .12 * s : 0), yc + .85 * s / 4.4, 6.5 * s / 4.4, 'bold', 'center');
+      D.setTextColor(0);
+    };
+    const sw = (x, yc, sh, dim) => {
+      D.setLineWidth(.2); D.setDrawColor(dim ? DIM.ln : 0); D.setFillColor(sh, sh, sh);
+      D.rect(x, yc - 2.2, 7, 4.4, 'FD');
+    };
+    const dots = (x, yc) => {
+      D.setFillColor(0, 0, 0); D.circle(x, yc, .3, 'F'); D.circle(x + 2.8, yc, .3, 'F');
+      D.setFillColor(90, 90, 90); D.circle(x + 1.4, yc, .17, 'F');
+    };
+    const E = (iw, label, icon) => ({ iw, label, icon, w: iw + 2 + tw(label) });
+
+    // Só entra na legenda o que aparece na página
+    const lv = curVl > 0 ? [curVl] : Array.from({ length: maxZ }, (_, i) => i + 1);
+    const dim = curVl > 1 && S.cs.some(c => c.z < curVl);
+    const act = S.cs.filter(c => curVl === 0 || c.z <= curVl);
+    const hasLane = showNum && multi && act.some(c => act.some(o => o !== c && o.d === FL[c.d] && hit(o, c)));
+    const rows = [
+      ['CONTÊINERES', [
+        E(5 * m, "Contêiner de 20' (5 x 2 módulos)", (x, yc) => cnt(x, yc, 5, 'E')),
+        E(10 * m, "Contêiner de 40' (10 x 2 módulos)", (x, yc) => cnt(x, yc, 10, 'E')),
+        E(5 * m, 'Faixa estreita na ponta = porta (pode ficar em qualquer lado)', (x, yc) => cnt(x, yc, 5, 'W'))
+      ]],
+      ['NUMERAÇÃO', showNum ? [
+        E(5, 'Nº do contêiner; a ponta da seta aponta para a porta', (x, yc) => tag(x + 2.5, yc, 1, true, 255)),
+        ...(multi ? [E(13, 'Pilha: nºs em sequência a partir da porta (do topo para a base)', (x, yc) => { tag(x + 2, yc, 1, false, 255); tag(x + 6, yc, 2, false, 255); tag(x + 10.4, yc, 3, true, 255); })] : []),
+        ...(hasLane ? [E(14, 'Portas opostas na pilha: duas filas lado a lado, cada uma a partir da sua porta', (x, yc) => { tag(x + 8.6, yc - 1.45, 2, false, 255, 3.2, 1); tag(x + 12, yc - 1.45, 1, true, 255, 3.2, 1); tag(x + 2, yc + 1.45, 3, true, 255, 3.2, -1); tag(x + 5.4, yc + 1.45, 4, false, 255, 3.2, -1); })] : [])
+      ] : []],
+      ['TONS / NÍVEIS', !multi ? [] : [
+        ...lv.map(z => E(7, z === 1 ? 'Branco: Base' : z === maxZ ? `Preto: Nível ${z - 1} (último)` : `Cinza: Nível ${z - 1}`, (x, yc) => sw(x, yc, tone(z)))),
+        ...(dim ? [E(7, 'Níveis inferiores (esmaecidos, só referência)', (x, yc) => sw(x, yc, DIM.fl, true))] : [])
+      ]],
+      ['MALHA', [E(3.6, 'Malha de ' + String(COLS).replace('.', ',') + ' x ' + String(ROWS).replace('.', ',') + ' módulos: ponto grande a ponto grande = 1 módulo (aprox. 4 pés ou 1,2 m); ponto pequeno = meio módulo', (x, yc) => dots(x + .5, yc)), E(0, 'Coordenada: ponto da malha onde a ponta da seta toca a porta (letra da linha + nº da coluna, a partir da popa)', () => {})]]
+    ].filter(r => r[1].length);
+
+    // Distribui os itens em linhas (quebra quando passa da margem) e ancora a caixa no rodapé
+    const lay = rows.map(([t, its]) => {
+      const ls = [[]]; let x = TX;
+      its.forEach(e => {
+        if (x + e.w > XR && ls[ls.length - 1].length) { ls.push([]); x = TX; }
+        ls[ls.length - 1].push({ e, x }); x += e.w + 6;
+      });
+      return { t, ls };
+    });
+    const nl = 1 + lay.reduce((a, r) => a + r.ls.length, 0);
+    const bh = nl * RH + 3, top = 200 - bh;
+    D.setDrawColor(0); D.setLineWidth(.4); D.setFillColor(255, 255, 255); D.rect(10, top, 277, bh);
+    D.setTextColor(0); T('LEGENDA:', 12, top + 1.5 + RH / 2 + 1.3, 8, 'bold');
+    let li = 1;
+    lay.forEach(r => {
+      D.setDrawColor(190); D.setLineWidth(.15); D.line(11, top + 1.5 + li * RH, 286, top + 1.5 + li * RH);
+      r.ls.forEach((ln, k) => {
+        const yc = top + 1.5 + li * RH + RH / 2;
+        if (!k) { D.setTextColor(0); T(r.t, 12, yc + .9, 6.5, 'bold'); }
+        ln.forEach(({ e, x }) => { e.icon(x, yc); D.setTextColor(0); T(e.label, x + e.iw + 2, yc + .9, FS, 'normal'); });
+        li++;
+      });
+    });
+    D.setTextColor(0); D.setDrawColor(0); D.setFillColor(0, 0, 0);
+    return top;
+  };
+
+  const box=(x,y,w,hh,c)=>{
+    const maxZ = Math.max(1, ...S.cs.map(o => o.z));
+    const shade = Math.round(255 * (1 - (maxZ > 1 ? (c.z - 1) / (maxZ - 1) : 0)));
+    const isDark = shade <= 127;
+    const FB = 11, FS = 7.5;                                    // fonte grande (cliente, CNT, nº) e pequena (demais campos)
+    const rh = multi ? [5.8, 6.0, 4.5, 6.2] : [7.5, 7.5, 7.5];  // 4ª linha (pilha/posição) só quando há mais de uma camada
+    const top = [0]; rh.forEach((h, i) => top.push(top[i] + h));
+    const mid = i => y + top[i] + rh[i] / 2, bl = i => mid(i) + 1.4, bs = i => mid(i) + .95;
+    D.setDrawColor(0); D.setLineWidth(.6); D.setFillColor(255, 255, 255); D.rect(x, y, w, hh);
+    for (let i = 1; i < rh.length; i++) Line(x, y + top[i], x + w, y + top[i], .3);
+
+    // 1ª linha: cliente e número de identificação
+    T('CLIENTE:', x + 2, bl(0), FS, 'bold'); fit((c.cl || '').trim() || DASH, x + 15.5, bl(0), w - 28.5, FB);
+    D.setDrawColor(0); D.setLineWidth(.3); D.setFillColor(shade, shade, shade);
+    D.rect(x + w - 11.5, mid(0) - 2.3, 10.5, 4.6, 'FD');
+    D.setTextColor(isDark ? 255 : 0); T(c.id, x + w - 6.25, bl(0), FB, 'bold', 'center'); D.setTextColor(0);
+
+    // 2ª linha: CNT e tipo
+    T('CNT:', x + 2, bl(1), FS, 'bold'); fit(cntN(c.cnt) ? String(c.cnt).trim() : DASH, x + 10, bl(1), w - 28, FB);
+    T('Tipo: ' + c.sz + "'", x + w - 2, bl(1), FS, 'normal', 'right');
+
+    // 3ª linha: lacres
+    T('LACRES:', x + 2, bs(2), FS, 'bold'); fit((c.lc || '').trim() || DASH, x + 15.2, bs(2), w - 34.5, FS); T('Coord.: ' + coord(c), x + w - 2, bs(2), FS, 'normal', 'right');
+
+    // 4ª linha (só com mais de uma camada): em cima a posição (nível) de cada contêiner da pilha, embaixo a pilha, alinhados
+    if (multi) {
+      const P_stack = pile(c), t4 = y + top[3];
+      if (P_stack.length > 1) {
+        const lvs = [...new Set(P_stack.map(o => o.z))].sort((a, b) => a - b);
+        const build = (sg, sp) => {
+          const it = [];
+          lvs.forEach((z, gi) => {
+            if (gi) it.push({ t: sg });
+            P_stack.filter(o => o.z === z).sort((a, b) => a.x - b.x || a.y - b.y).forEach((o, i) => {
+              if (i) it.push({ t: sp });
+              it.push({ t: o.id === c.id ? '[' + o.id + ']' : String(o.id), z, me: o.id === c.id });
+            });
+          });
+          return it;
+        };
+        const widthOf = (it, fs) => { D.setFont('helvetica', 'bold'); D.setFontSize(fs); return it.reduce((a, k) => a + D.getTextWidth(k.t), 0); };
+        D.setFont('helvetica', 'bold'); D.setFontSize(FS);
+        const lw = Math.max(D.getTextWidth('Posição:'), D.getTextWidth('Pilha:'));
+        const ax = x + 2 + lw + 1.5, avail = x + w - 2 - ax;
+        let it = build(' > ', ' + '), fs = FS, tot = widthOf(it, FS);
+        if (tot > avail) fs = FS * avail / tot;
+        if (fs < 6) {
+          const it2 = build('>', '+'), t2 = widthOf(it2, FS), fs2 = t2 > avail ? FS * avail / t2 : FS;
+          if (fs2 > fs) { it = it2; fs = fs2; }
+        }
+        T('Posição:', x + 2, t4 + 2.6, FS, 'bold');
+        T('Pilha:', x + 2, t4 + 5.5, FS, 'bold');
+        let cx = ax;
+        it.forEach(k => {
+          D.setFont('helvetica', 'bold'); D.setFontSize(fs);
+          const wk = D.getTextWidth(k.t);
+          T(k.t, cx, t4 + 5.5, fs, 'bold');
+          if (k.z) T(lvName(k.z), cx + wk / 2, t4 + 2.6, fs, k.me ? 'bold' : 'normal', 'center');
+          cx += wk;
+        });
+      } else {
+        D.setFont('helvetica', 'bold'); D.setFontSize(FS);
+        const lw0 = D.getTextWidth('Posição:'), ym = t4 + rh[3] / 2 + .95;
+        T('Posição:', x + 2, ym, FS, 'bold'); T(lvName(c.z), x + 2 + lw0 + 1.5, ym, FS, 'bold');
+      }
+    }
+  };
+
+  // Resumo da carga (ocupa a faixa entre o croqui e a legenda)
+  const drawSummary = (yTop, yMax) => {
+    const L = 4.2, nl = Math.min(5, Math.floor((yMax - yTop - 2.4) / L));
+    if (nl < 2) return;
+    const cs = S.cs, n20 = cs.filter(c => c.sz === 20).length, n40 = cs.filter(c => c.sz === 40).length;
+    const lv = [...new Set(cs.map(c => c.z))].sort((a, b) => a - b).map(z => (z === 1 ? 'Base' : 'Nível ' + (z - 1)) + ': ' + cs.filter(c => c.z === z).length);
+    const g = {};
+    cs.forEach(c => { const n = (c.cl || '').trim(), k = n.toUpperCase(); (g[k] = g[k] || { n: n || 'Sem cliente', q: 0 }).q++; });
+    const cl = Object.values(g).sort((a, b) => b.q - a.q || a.n.localeCompare(b.n)).map(o => o.n + ' (' + o.q + ')');
+    const SEP = '   |   ', X0 = 33, XR = 285;
+    D.setFont('helvetica', 'normal'); D.setFontSize(7.5);
+    const sepw = D.getTextWidth(SEP), lines = [[]];
+    let x = X0;
+    cl.forEach(t => { const w = D.getTextWidth(t) + sepw; if (x + w > XR && lines[lines.length - 1].length) { lines.push([]); x = X0; } lines[lines.length - 1].push(t); x += w; });
+    const room = nl - (multi ? 2 : 1);
+    let out = lines;
+    if (room < 1) out = [];
+    else if (lines.length > room) {
+      out = lines.slice(0, room);
+      const last = out[room - 1], count = () => out.reduce((a, l) => a + l.length, 0);
+      let tail = '+' + (cl.length - count()) + ' outros';
+      while (last.length > 1 && D.getTextWidth(last.join(SEP) + SEP + tail) + X0 > XR) { last.pop(); tail = '+' + (cl.length - count()) + ' outros'; }
+      last.push(tail);
+    }
+    const nb = multi ? 2 : 1, bh = (nb + out.length) * L + 2.4, y0 = yTop + 4.3;
+    D.setDrawColor(0); D.setLineWidth(.4); D.setFillColor(255, 255, 255); D.rect(10, yTop, 277, bh);
+    D.setTextColor(0);
+    T('RESUMO DA CARGA', 12, y0, 8, 'bold');
+    T('Total: ' + cs.length + (cs.length === 1 ? ' contêiner' : ' contêineres') + '     |     20\': ' + n20 + '     |     40\': ' + n40, 48, y0, 8, 'normal');
+    if (multi) T('Por nível:', 12, y0 + L, 7.5, 'bold');
+    if (multi) T(lv.join(SEP), X0, y0 + L, 7.5, 'normal');
+    out.forEach((ln, i) => { if (!i) T('Por cliente:', 12, y0 + nb * L, 7.5, 'bold'); T(ln.join(SEP), X0, y0 + (nb + i) * L, 7.5, 'normal'); });
+  };
+
+  // Proa/popa e bombordo/boreste (o lado da proa vem do cabeçalho)
+  const rulers = (ox, oy, P) => {
+    const pr = (H.proa || '') !== 'E', nC = Math.floor(COLS), nR = Math.floor(ROWS), sn = P >= 3.6 ? 1 : (P >= 2.4 ? 2 : 5);
+    D.setTextColor(0);
+    for (let i = 0; i <= nC; i++) { const n = pr ? i + 1 : nC - i + 1; if (n === 1 || n % sn === 0) T(n, ox + i * P, oy - 1.2, 5.5, 'normal', 'center'); }
+    for (let r = 0; r <= nR; r++) T(String.fromCharCode(65 + r), ox - 2.4, oy + r * P + .9, 6, 'bold', 'center');
+  };
+
+  const marcas = (ox, oy, P) => {
+    const pr = H.proa || 'D';
+    if (pr === 'N') return;
+    const dr = pr !== 'E', x0 = ox, x1 = ox + COLS * P, yt = oy - 4.4, yb = oy + ROWS * P + 5.2;
+    const tri = (xt, dir) => { D.setFillColor(0, 0, 0); D.triangle(xt, yt - 1.1, xt - dir * 2.6, yt - 2.4, xt - dir * 2.6, yt + .2, 'F'); };
+    D.setTextColor(0);
+    if (dr) { T('POPA', x0, yt, 8, 'bold', 'left'); T('PROA', x1 - 3.8, yt, 8, 'bold', 'right'); tri(x1, 1); }
+    else { T('PROA', x0 + 3.8, yt, 8, 'bold', 'left'); tri(x0, -1); T('POPA', x1, yt, 8, 'bold', 'right'); }
+    T(dr ? 'BOMBORDO (BB)' : 'BORESTE (BE)', 148.5, yt, 7.5, 'bold', 'center');
+    T(dr ? 'BORESTE (BE)' : 'BOMBORDO (BB)', 148.5, yb, 7.5, 'bold', 'center');
+  };
+
+  let pageNum = 1;
+  for (const page of pagesData) {
+      if (pageNum > 1) D.addPage();
+
+      if (page.type === 'croqui') {
+          drawHeader(false, page.opt.title);
+
+          // Ampliação máxima horizontal P = 4.65 (ocupa 279mm de largura)
+          const P = Math.min(270 / COLS, 74 / ROWS);
+          const ox = 148.5 - (COLS * P)/2;
+          const oy = 52;
+
+          croqui(ox, oy, P, page.opt.z, page.opt.num);
+          rulers(ox, oy, P);
+          marcas(ox, oy, P);
+          const lt = drawLegend(page.opt.num, page.opt.z);
+          drawSummary(oy + ROWS * P + 8.2, lt - 3);
+          footer(pageNum, totalPages);
+
+      } else if (page.type === 'list') {
+          drawHeader(true, page.opt.title);
+
+          page.list.forEach((c, idx) => {
+              const col = idx % 4;
+              const row = Math.floor(idx / 4);
+              box(10 + col*70, 48 + row*24, 67, 22.5, c);
+          });
+
+          footer(pageNum, totalPages);
+      }
+      pageNum++;
+  }
+
+  try {
+    const nome='mapa-embarque'+(H.dt1?'-'+H.dt1.split('-').reverse().join(''):'')+'.pdf';
+    const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
+    if(dl)await dl.save({filename:nome,data:D.output('blob')});
+    else D.save(nome);
+    say('PDF gerado com sucesso.', 0);
+  } catch(e) {
+    if(e&&e.code=='declined')say('Download cancelado.', 0);
+    else say('Erro ao salvar o arquivo PDF.', 1);
+  }
+}
+
+if(!Object.values(S.h).some(Boolean))$('#hd').open=true;
+function syncLogos(){
+  [['l','lgL','lgLn'],['r','lgR','lgRn']].forEach(([q,k,kn])=>{
+    const img=$('#lgi-'+q),nm=$('#lgn-'+q),x=$('#lgx-'+q);if(!img||!nm||!x)return;
+    if(S[k]){img.src=S[k];img.hidden=false;nm.textContent=S[kn]||'logo carregado';x.hidden=false}
+    else{img.removeAttribute('src');img.hidden=true;nm.textContent='nenhum arquivo';x.hidden=true}
+  });
+}
+function loadLogo(inp,key,nameKey){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  const fr=new FileReader();
+  fr.onerror=()=>say('Não foi possível ler a imagem do logo.',1);
+  fr.onload=()=>{
+    const im=new Image();
+    im.onerror=()=>say('Não foi possível abrir essa imagem como logo.',1);
+    im.onload=()=>{
+      if(!im.width||!im.height)return say('Imagem sem dimensões válidas para logo.',1);
+      const k=Math.min(1,400/im.width,160/im.height),w=Math.max(1,Math.round(im.width*k)),h=Math.max(1,Math.round(im.height*k)),cv=document.createElement('canvas');
+      cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);
+      S[key]=cv.toDataURL('image/png');S[nameKey]=f.name;save();syncLogos();say('Logo carregado: '+f.name+'. Ele aparece no cabeçalho do PDF.');
+      inp.value='';
+    };
+    im.src=fr.result;
+  };
+  fr.readAsDataURL(f);
+}
+[['l','lgL','lgLn'],['r','lgR','lgRn']].forEach(([q,k,kn])=>{
+  $('#lgb-'+q).onclick=()=>$('#lg-'+q).click();
+  $('#lg-'+q).onchange=e=>{loadLogo(e.target,k,kn)};
+  $('#lgx-'+q).onclick=()=>{S[k]='';S[kn]='';save();syncLogos();say('Logo removido.')};
+});
+
+// Listas suspensas do cabeçalho (mesmo funcionamento do prefixo: "+ Novo…" alimenta a lista)
+function lfFill(k){
+  const el=$('[data-lf="'+k+'"]');if(!el||!el._s)return;
+  const s=el._s;
+  s.innerHTML='<option value="">—</option>'+S.ls[k].map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+'<option value="__new">+ Novo…</option>';
+  s.value=S.h[k]||'';
+}
+function lfBuild(el){
+  const k=el.dataset.lf;el.className='lf';
+  el.innerHTML='<select aria-label="'+LFN[k]+'"></select><input maxlength="60" autocomplete="off" autocapitalize="characters" placeholder="Novo valor" aria-label="Novo valor de '+LFN[k]+'" hidden>';
+  const s=el.firstChild,n=el.lastChild;el._s=s;el._n=n;
+  s.onchange=()=>{
+    if(s.value==='__new'){s.hidden=true;n.hidden=false;n.value='';n.focus();return}
+    S.h[k]=s.value;save();
+  };
+  const done=()=>{
+    if(n.hidden)return;
+    const v=n.value.trim().toUpperCase();
+    n.hidden=true;s.hidden=false;
+    if(v){if(!S.ls[k].includes(v))S.ls[k].push(v);S.h[k]=v;save();renderLM()}
+    lfFill(k);
+  };
+  n.onblur=done;
+  n.onkeydown=e=>{if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();if(e.key==='Escape')n.value='';n.blur()}};
+  n.oninput=()=>{n.value=n.value.toUpperCase()};
+}
+function syncHeader(){
+  $$('[data-h]').forEach(i=>{i.value=S.h[i.dataset.h]||''});
+  LFK.forEach(k=>lfFill(k));
+}
+function renderLM(){
+  const b=$('#lmb');if(!b)return;
+  const usedP=new Set(S.cs.map(c=>cntP(c.cnt))),usedC=new Set(S.cs.map(c=>c.cl).filter(Boolean));
+  const row=(t,key,items,can)=>'<div class="lmr"><b>'+esc(t)+'</b>'+(items.length?items.map(v=>'<span class="chip">'+esc(v)+(can(v)?'<button type="button" data-lm="'+key+'" data-v="'+esc(v)+'" aria-label="Remover '+esc(v)+'">✕</button>':'<small title="em uso">●</small>')+'</span>').join(''):'<small>vazia</small>')+'</div>';
+  b.innerHTML=row('Prefixo do CNT','pfx',S.pfx,v=>!usedP.has(v)&&S.pfx.length>1)+row('Cliente','cli',S.ls.cli,v=>!usedC.has(v))+LFK.map(k=>row(LFN[k],k,S.ls[k],()=>true)).join('');
+}
+$('#lmb').onclick=e=>{
+  const x=e.target.closest('button[data-lm]');if(!x)return;
+  const key=x.dataset.lm,v=x.dataset.v;
+  if(key==='pfx'){S.pfx=S.pfx.filter(p=>p!==v);if(S.px===v)S.px=S.pfx[0]}
+  else{S.ls[key]=S.ls[key].filter(p=>p!==v);if(S.h[key]===v)S.h[key]='';if(key==='cli'&&S.lastCli===v)S.lastCli=''}
+  save();renderLM();LFK.forEach(q=>lfFill(q));
+};
+
+// Tamanho da malha (Configurar): largura e altura em módulos, de 0,5 em 0,5, escolhendo a borda
+const GL={w:[10,100],h:[4,25]},fmt1=v=>String(v).replace('.',',');
+function slackG(){
+  if(!S.cs.length)return null;
+  return {l:Math.min(...S.cs.map(c=>c.x)),r:Math.min(...S.cs.map(c=>COLS-(c.x+c.w))),t:Math.min(...S.cs.map(c=>c.y)),b:Math.min(...S.cs.map(c=>ROWS-(c.y+c.h)))};
+}
+function syncGridUI(){
+  const gw=$('#gw'),gh=$('#gh');
+  if(gw&&document.activeElement!==gw)gw.value=fmt1(COLS);
+  if(gh&&document.activeElement!==gh)gh.value=fmt1(ROWS);
+  const bw=$('#gw-b'),bh=$('#gh-b');
+  if(bw)bw.textContent='Borda: '+(S.gbW==='L'?'esquerda':'direita');
+  if(bh)bh.textContent='Borda: '+(S.gbH==='T'?'superior':'inferior');
+  const sl=slackG(),fg=$('#gfolga');
+  if(fg)fg.textContent=sl?'Folga para reduzir: esquerda '+fmt1(sl.l)+' | direita '+fmt1(sl.r)+' | superior '+fmt1(sl.t)+' | inferior '+fmt1(sl.b):'Sem contêineres: a malha pode ser reduzida até o limite.';
+}
+function resizeGrid(axis,delta,toVal){
+  const side=axis==='w'?S.gbW:S.gbH,cur=axis==='w'?COLS:ROWS;
+  if(toVal!==undefined&&!isFinite(toVal))return syncGridUI();
+  let d=toVal!==undefined?toVal-cur:delta;d=Math.round(d*2)/2;
+  if(!d)return syncGridUI();
+  const nv=cur+d,[mn,mx]=axis==='w'?GL.w:GL.h;
+  if(nv<mn||nv>mx){say((axis==='w'?'Largura':'Altura')+' fora do limite ('+mn+' a '+mx+').',1);return syncGridUI()}
+  if(d<0){
+    const sl=slackG();
+    if(sl){
+      const room=axis==='w'?(side==='L'?sl.l:sl.r):(side==='T'?sl.t:sl.b);
+      if(-d>room+1e-9){
+        const dist=c=>axis==='w'?(side==='L'?c.x:COLS-(c.x+c.w)):(side==='T'?c.y:ROWS-(c.y+c.h));
+        const bl=[...S.cs].sort((p,q)=>dist(p)-dist(q))[0];
+        say('Não dá para reduzir: o contêiner nº '+bl.id+' ficaria fora da malha (folga nessa borda: '+fmt1(room)+').',1);return syncGridUI();
+      }
+    }
+  }
+  if(side==='L')S.cs.forEach(c=>{c.x+=d});
+  if(side==='T')S.cs.forEach(c=>{c.y+=d});
+  if(axis==='w')COLS=nv;else ROWS=nv;
+  S.cols=COLS;S.rows=ROWS;
+  undoStack=[];redoStack=[];syncUndo();
+  all();syncGridUI();
+  say('Malha agora com '+fmt1(COLS)+' x '+fmt1(ROWS)+' módulos (o histórico de desfazer foi zerado).');
+}
+function openCfg(){$('#cfg-dlg').hidden=false;sync();renderLM();syncGridUI()}
+function closeCfg(){$('#cfg-dlg').hidden=true}
+$('#cfg-x').onclick=closeCfg;
+$('#cfg-dlg').onclick=e=>{if(e.target===e.currentTarget)closeCfg()};
+$('#cf-num').onclick=()=>{S.num=S.num?0:1;save();sync();all()};
+$('#cf-rul').onclick=()=>{S.rul=S.rul?0:1;save();sync();all()};
+$('#gw-m').onclick=()=>resizeGrid('w',-.5);
+$('#gw-p').onclick=()=>resizeGrid('w',.5);
+$('#gh-m').onclick=()=>resizeGrid('h',-.5);
+$('#gh-p').onclick=()=>resizeGrid('h',.5);
+$('#gw').onchange=e=>resizeGrid('w',0,parseFloat(String(e.target.value).replace(',','.')));
+$('#gh').onchange=e=>resizeGrid('h',0,parseFloat(String(e.target.value).replace(',','.')));
+$('#gw-b').onclick=()=>{S.gbW=S.gbW==='L'?'R':'L';save();syncGridUI()};
+$('#gh-b').onclick=()=>{S.gbH=S.gbH==='T'?'B':'T';save();syncGridUI()};
+$('#g-reset').onclick=()=>{resizeGrid('w',0,60);resizeGrid('h',0,16)};
+
+// Guias
+let sternDone=false;
+function scrollToStern(){const go=()=>{wr.scrollLeft=proaR()?0:wr.scrollWidth};go();if(window.requestAnimationFrame)requestAnimationFrame(go)}
+function showTab(t){
+  if(!['cab','car','lis'].includes(t))t='car';
+  if(t!==S.tab&&!sh.hidden)closeSheet();
+  S.tab=t;save();
+  ['cab','car','lis'].forEach(k=>{const pn=$('#tab-'+k),bt=$('#tb-'+k);if(pn)pn.hidden=k!==t;if(bt){bt.setAttribute('aria-selected',k===t);bt.setAttribute('aria-pressed',k===t)}});
+  if(t==='car'){draw();if(!sternDone){sternDone=true;scrollToStern()}}
+  if(t==='lis')renderList();
+}
+$('.tabs').onclick=e=>{const b=e.target.closest('button[data-tab]');if(b)showTab(b.dataset.tab)};
+
+// Filtros da guia Lista
+const flt=()=>{FLT.q=$('#f-q').value;FLT.cli=$('#f-cli').value;FLT.niv=$('#f-niv').value;FLT.tam=$('#f-tam').value;renderList()};
+['#f-q','#f-cli','#f-niv','#f-tam'].forEach(q=>{const el=$(q);el.oninput=flt;el.onchange=flt});
+$('#f-pend').onclick=e=>{FLT.pend=FLT.pend?0:1;e.currentTarget.setAttribute('aria-pressed',!!FLT.pend);renderList()};
+$('#f-clr').onclick=()=>{FLT.q='';FLT.cli='';FLT.niv='';FLT.tam='';FLT.pend=0;$('#f-q').value='';$('#f-tam').value='';$('#f-pend').setAttribute('aria-pressed',false);renderList()};
+
+$$('[data-lf]').forEach(lfBuild);
+renum();sync();updLck();syncHeader();syncLogos();renderLM();
+all();
+showTab(!['dt1','ini','vis','bal','emp','conf','empi'].some(k=>S.h[k])?'cab':(S.tab||'car'));
+hint();
+</script>
+</body>
+</html>
